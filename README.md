@@ -50,7 +50,7 @@ t.destroy()
 
 ## TODO ##
 
-- [ ] Clibration functions
+- [ ] Calibration functions
 - [ ] Raising exceptions on error codes
 - [ ] Internal thread running
 - [ ] API docs
