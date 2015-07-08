@@ -1,9 +1,12 @@
 from libc.stdint cimport uint32_t, uint64_t
 
-cdef extern from "tobiigaze_data_types.h":
+
+cdef extern from "tobiigaze_error_codes.h":
 
     ctypedef enum tobiigaze_error_code:
         pass
+
+cdef extern from "tobiigaze_data_types.h":
 
     ctypedef enum tobiigaze_tracking_status:
         pass
@@ -46,13 +49,14 @@ cdef extern from "tobiigaze.h":
     void tobiigaze_run_event_loop(tobiigaze_eye_tracker *eye_tracker, tobiigaze_error_code *error_code) nogil
 
     void tobiigaze_connect(tobiigaze_eye_tracker *eye_tracker, tobiigaze_error_code *error_code) nogil
-    void tobiigaze_disconnect(tobiigaze_eye_tracker *eye_tracker) 
-    int tobiigaze_is_connected(tobiigaze_eye_tracker *eye_tracker)
+    void tobiigaze_disconnect(tobiigaze_eye_tracker *eye_tracker) nogil
+    int tobiigaze_is_connected(tobiigaze_eye_tracker *eye_tracker) nogil
 
-    void tobiigaze_start_tracking(tobiigaze_eye_tracker *eye_tracker, tobiigaze_gaze_listener gaze_callback, tobiigaze_error_code *error_code, void *user_data)
-    void tobiigaze_stop_tracking(tobiigaze_eye_tracker *eye_tracker, tobiigaze_error_code *error_code)
-    void tobiigaze_break_event_loop(tobiigaze_eye_tracker *eye_tracker)
-    void tobiigaze_destroy(tobiigaze_eye_tracker *eye_tracker)
+    void tobiigaze_start_tracking(tobiigaze_eye_tracker *eye_tracker, tobiigaze_gaze_listener gaze_callback, 
+          tobiigaze_error_code *error_code, void *user_data) nogil
+    void tobiigaze_stop_tracking(tobiigaze_eye_tracker *eye_tracker, tobiigaze_error_code *error_code) nogil
+    void tobiigaze_break_event_loop(tobiigaze_eye_tracker *eye_tracker) nogil
+    void tobiigaze_destroy(tobiigaze_eye_tracker *eye_tracker) nogil
 
 
 cdef extern from "tobiigaze_discovery.h":

@@ -5,6 +5,8 @@
     "distutils": {
         "depends": [
             "tobiigaze_discovery.h", 
+            "tobiigaze.h", 
+            "tobiigaze_error_codes.h", 
             "tobiigaze_data_types.h"
         ], 
         "libraries": [
@@ -266,6 +268,7 @@ class __Pyx_FakeReference {
 #define __PYX_HAVE__gazesdk
 #define __PYX_HAVE_API__gazesdk
 #include "stdint.h"
+#include "tobiigaze_error_codes.h"
 #include "tobiigaze_data_types.h"
 #include "tobiigaze.h"
 #include "tobiigaze_discovery.h"
@@ -466,7 +469,7 @@ struct __pyx_obj_7gazesdk_GazeDataEye;
 struct __pyx_obj_7gazesdk_GazeData;
 struct __pyx_obj_7gazesdk_Tracker;
 
-/* "gazesdk.pyx":14
+/* "gazesdk.pyx":15
  *     return url
  * 
  * cdef class GazeDataEye:             # <<<<<<<<<<<<<<
@@ -483,7 +486,7 @@ struct __pyx_obj_7gazesdk_GazeDataEye {
 };
 
 
-/* "gazesdk.pyx":29
+/* "gazesdk.pyx":39
  * 
  * 
  * cdef class GazeData:             # <<<<<<<<<<<<<<
@@ -500,8 +503,8 @@ struct __pyx_obj_7gazesdk_GazeData {
 };
 
 
-/* "gazesdk.pyx":52
- *     event_queue.put(g)
+/* "gazesdk.pyx":63
+ * 
  * 
  * cdef class Tracker:             # <<<<<<<<<<<<<<
  * 
@@ -511,11 +514,12 @@ struct __pyx_obj_7gazesdk_Tracker {
   PyObject_HEAD
   tobiigaze_eye_tracker *_tracker;
   PyObject *event_queue;
+  PyObject *event_loop;
 };
 
 
 
-/* "gazesdk.pyx":14
+/* "gazesdk.pyx":15
  *     return url
  * 
  * cdef class GazeDataEye:             # <<<<<<<<<<<<<<
@@ -529,7 +533,7 @@ struct __pyx_vtabstruct_7gazesdk_GazeDataEye {
 static struct __pyx_vtabstruct_7gazesdk_GazeDataEye *__pyx_vtabptr_7gazesdk_GazeDataEye;
 
 
-/* "gazesdk.pyx":29
+/* "gazesdk.pyx":39
  * 
  * 
  * cdef class GazeData:             # <<<<<<<<<<<<<<
@@ -605,6 +609,23 @@ static struct __pyx_vtabstruct_7gazesdk_GazeData *__pyx_vtabptr_7gazesdk_GazeDat
 #define __Pyx_CLEAR(r)    do { PyObject* tmp = ((PyObject*)(r)); r = NULL; __Pyx_DECREF(tmp);} while(0)
 #define __Pyx_XCLEAR(r)   do { if((r) != NULL) {PyObject* tmp = ((PyObject*)(r)); r = NULL; __Pyx_DECREF(tmp);}} while(0)
 
+#if CYTHON_COMPILING_IN_CPYTHON
+static CYTHON_INLINE PyObject* __Pyx_PyObject_GetAttrStr(PyObject* obj, PyObject* attr_name) {
+    PyTypeObject* tp = Py_TYPE(obj);
+    if (likely(tp->tp_getattro))
+        return tp->tp_getattro(obj, attr_name);
+#if PY_MAJOR_VERSION < 3
+    if (likely(tp->tp_getattr))
+        return tp->tp_getattr(obj, PyString_AS_STRING(attr_name));
+#endif
+    return PyObject_GetAttr(obj, attr_name);
+}
+#else
+#define __Pyx_PyObject_GetAttrStr(o,n) PyObject_GetAttr(o,n)
+#endif
+
+static PyObject *__Pyx_GetBuiltinName(PyObject *name);
+
 static CYTHON_INLINE void __Pyx_ErrRestore(PyObject *type, PyObject *value, PyObject *tb);
 static CYTHON_INLINE void __Pyx_ErrFetch(PyObject **type, PyObject **value, PyObject **tb);
 
@@ -623,32 +644,19 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg
 #endif
 
 #if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_PyObject_GetAttrStr(PyObject* obj, PyObject* attr_name) {
-    PyTypeObject* tp = Py_TYPE(obj);
-    if (likely(tp->tp_getattro))
-        return tp->tp_getattro(obj, attr_name);
-#if PY_MAJOR_VERSION < 3
-    if (likely(tp->tp_getattr))
-        return tp->tp_getattr(obj, PyString_AS_STRING(attr_name));
-#endif
-    return PyObject_GetAttr(obj, attr_name);
-}
-#else
-#define __Pyx_PyObject_GetAttrStr(o,n) PyObject_GetAttr(o,n)
-#endif
-
-#if CYTHON_COMPILING_IN_CPYTHON
 static CYTHON_INLINE PyObject* __Pyx_PyObject_CallMethO(PyObject *func, PyObject *arg);
 #endif
 
 static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg);
 
+static void __Pyx_RaiseDoubleKeywordsError(const char* func_name, PyObject* kw_name);
+
+static int __Pyx_ParseOptionalKeywords(PyObject *kwds, PyObject **argnames[], \
+    PyObject *kwds2, PyObject *values[], Py_ssize_t num_pos_args, \
+    const char* function_name);
+
 static void __Pyx_RaiseArgtupleInvalid(const char* func_name, int exact,
     Py_ssize_t num_min, Py_ssize_t num_max, Py_ssize_t num_found);
-
-static CYTHON_INLINE int __Pyx_CheckKeywordStrings(PyObject *kwdict, const char* function_name, int kw_allowed);
-
-static PyObject *__Pyx_GetBuiltinName(PyObject *name);
 
 static CYTHON_INLINE PyObject *__Pyx_GetModuleGlobalName(PyObject *name);
 
@@ -658,7 +666,88 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_CallNoArg(PyObject *func);
 #define __Pyx_PyObject_CallNoArg(func) __Pyx_PyObject_Call(func, __pyx_empty_tuple, NULL)
 #endif
 
+static void __Pyx_Raise(PyObject *type, PyObject *value, PyObject *tb, PyObject *cause);
+
+#if CYTHON_COMPILING_IN_CPYTHON
+#define __Pyx_PyObject_DelAttrStr(o,n) __Pyx_PyObject_SetAttrStr(o,n,NULL)
+static CYTHON_INLINE int __Pyx_PyObject_SetAttrStr(PyObject* obj, PyObject* attr_name, PyObject* value) {
+    PyTypeObject* tp = Py_TYPE(obj);
+    if (likely(tp->tp_setattro))
+        return tp->tp_setattro(obj, attr_name, value);
+#if PY_MAJOR_VERSION < 3
+    if (likely(tp->tp_setattr))
+        return tp->tp_setattr(obj, PyString_AS_STRING(attr_name), value);
+#endif
+    return PyObject_SetAttr(obj, attr_name, value);
+}
+#else
+#define __Pyx_PyObject_DelAttrStr(o,n)   PyObject_DelAttr(o,n)
+#define __Pyx_PyObject_SetAttrStr(o,n,v) PyObject_SetAttr(o,n,v)
+#endif
+
 static int __Pyx_SetVtable(PyObject *dict, void *vtable);
+
+static PyObject *__Pyx_CalculateMetaclass(PyTypeObject *metaclass, PyObject *bases);
+
+static PyTypeObject* __Pyx_FetchCommonType(PyTypeObject* type);
+
+#define __Pyx_CyFunction_USED 1
+#include <structmember.h>
+#define __Pyx_CYFUNCTION_STATICMETHOD  0x01
+#define __Pyx_CYFUNCTION_CLASSMETHOD   0x02
+#define __Pyx_CYFUNCTION_CCLASS        0x04
+#define __Pyx_CyFunction_GetClosure(f) \
+    (((__pyx_CyFunctionObject *) (f))->func_closure)
+#define __Pyx_CyFunction_GetClassObj(f) \
+    (((__pyx_CyFunctionObject *) (f))->func_classobj)
+#define __Pyx_CyFunction_Defaults(type, f) \
+    ((type *)(((__pyx_CyFunctionObject *) (f))->defaults))
+#define __Pyx_CyFunction_SetDefaultsGetter(f, g) \
+    ((__pyx_CyFunctionObject *) (f))->defaults_getter = (g)
+typedef struct {
+    PyCFunctionObject func;
+#if PY_VERSION_HEX < 0x030500A0
+    PyObject *func_weakreflist;
+#endif
+    PyObject *func_dict;
+    PyObject *func_name;
+    PyObject *func_qualname;
+    PyObject *func_doc;
+    PyObject *func_globals;
+    PyObject *func_code;
+    PyObject *func_closure;
+    PyObject *func_classobj;
+    void *defaults;
+    int defaults_pyobjects;
+    int flags;
+    PyObject *defaults_tuple;
+    PyObject *defaults_kwdict;
+    PyObject *(*defaults_getter)(PyObject *);
+    PyObject *func_annotations;
+} __pyx_CyFunctionObject;
+static PyTypeObject *__pyx_CyFunctionType = 0;
+#define __Pyx_CyFunction_NewEx(ml, flags, qualname, self, module, globals, code) \
+    __Pyx_CyFunction_New(__pyx_CyFunctionType, ml, flags, qualname, self, module, globals, code)
+static PyObject *__Pyx_CyFunction_New(PyTypeObject *, PyMethodDef *ml,
+                                      int flags, PyObject* qualname,
+                                      PyObject *self,
+                                      PyObject *module, PyObject *globals,
+                                      PyObject* code);
+static CYTHON_INLINE void *__Pyx_CyFunction_InitDefaults(PyObject *m,
+                                                         size_t size,
+                                                         int pyobjects);
+static CYTHON_INLINE void __Pyx_CyFunction_SetDefaultsTuple(PyObject *m,
+                                                            PyObject *tuple);
+static CYTHON_INLINE void __Pyx_CyFunction_SetDefaultsKwDict(PyObject *m,
+                                                             PyObject *dict);
+static CYTHON_INLINE void __Pyx_CyFunction_SetAnnotationsDict(PyObject *m,
+                                                              PyObject *dict);
+static int __Pyx_CyFunction_init(void);
+
+static PyObject *__Pyx_Py3MetaclassPrepare(PyObject *metaclass, PyObject *bases, PyObject *name, PyObject *qualname,
+                                           PyObject *mkw, PyObject *modname, PyObject *doc);
+static PyObject *__Pyx_Py3ClassCreate(PyObject *metaclass, PyObject *name, PyObject *bases, PyObject *dict,
+                                      PyObject *mkw, int calculate_metaclass, int allow_py2_metaclass);
 
 typedef struct {
     int code_line;
@@ -709,6 +798,8 @@ static void __pyx_f_7gazesdk_gaze_callback(struct tobiigaze_gaze_data *, struct 
 int __pyx_module_is_main_gazesdk = 0;
 
 /* Implementation of 'gazesdk' */
+static PyObject *__pyx_builtin_Exception;
+static PyObject *__pyx_builtin_super;
 static PyObject *__pyx_pf_7gazesdk_get_version(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
 static PyObject *__pyx_pf_7gazesdk_2get_connected_eye_tracker(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
 static PyObject *__pyx_pf_7gazesdk_11GazeDataEye_32eye_position_from_eye_tracker_mm___get__(struct __pyx_obj_7gazesdk_GazeDataEye *__pyx_v_self); /* proto */
@@ -719,10 +810,10 @@ static PyObject *__pyx_pf_7gazesdk_8GazeData_9timestamp___get__(struct __pyx_obj
 static PyObject *__pyx_pf_7gazesdk_8GazeData_15tracking_status___get__(struct __pyx_obj_7gazesdk_GazeData *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_7gazesdk_8GazeData_4left___get__(struct __pyx_obj_7gazesdk_GazeData *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_7gazesdk_8GazeData_5right___get__(struct __pyx_obj_7gazesdk_GazeData *__pyx_v_self); /* proto */
-static int __pyx_pf_7gazesdk_7Tracker___init__(struct __pyx_obj_7gazesdk_Tracker *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_7gazesdk_7Tracker_2create(struct __pyx_obj_7gazesdk_Tracker *__pyx_v_self, PyObject *__pyx_v_url); /* proto */
-static PyObject *__pyx_pf_7gazesdk_7Tracker_4destroy(struct __pyx_obj_7gazesdk_Tracker *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_7gazesdk_7Tracker_6run_event_loop(struct __pyx_obj_7gazesdk_Tracker *__pyx_v_self); /* proto */
+static int __pyx_pf_7gazesdk_7Tracker___cinit__(struct __pyx_obj_7gazesdk_Tracker *__pyx_v_self, PyObject *__pyx_v_url); /* proto */
+static void __pyx_pf_7gazesdk_7Tracker_2__dealloc__(struct __pyx_obj_7gazesdk_Tracker *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7gazesdk_7Tracker_4run_event_loop(struct __pyx_obj_7gazesdk_Tracker *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7gazesdk_7Tracker_6__run_event_loop(struct __pyx_obj_7gazesdk_Tracker *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_7gazesdk_7Tracker_8break_event_loop(struct __pyx_obj_7gazesdk_Tracker *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_7gazesdk_7Tracker_10connect(struct __pyx_obj_7gazesdk_Tracker *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_7gazesdk_7Tracker_12disconnect(struct __pyx_obj_7gazesdk_Tracker *__pyx_v_self); /* proto */
@@ -732,41 +823,183 @@ static PyObject *__pyx_pf_7gazesdk_7Tracker_18stop_tracking(struct __pyx_obj_7ga
 static PyObject *__pyx_pf_7gazesdk_7Tracker_11event_queue___get__(struct __pyx_obj_7gazesdk_Tracker *__pyx_v_self); /* proto */
 static int __pyx_pf_7gazesdk_7Tracker_11event_queue_2__set__(struct __pyx_obj_7gazesdk_Tracker *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
 static int __pyx_pf_7gazesdk_7Tracker_11event_queue_4__del__(struct __pyx_obj_7gazesdk_Tracker *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7gazesdk_12TrackerError___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_error_code); /* proto */
 static PyObject *__pyx_tp_new_7gazesdk_GazeDataEye(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_7gazesdk_GazeData(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_7gazesdk_Tracker(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static char __pyx_k_doc[] = "__doc__";
 static char __pyx_k_put[] = "put";
 static char __pyx_k_url[] = "url";
+static char __pyx_k_init[] = "__init__";
+static char __pyx_k_join[] = "join";
 static char __pyx_k_main[] = "__main__";
+static char __pyx_k_self[] = "self";
 static char __pyx_k_test[] = "__test__";
 static char __pyx_k_Queue[] = "Queue";
+static char __pyx_k_start[] = "start";
+static char __pyx_k_super[] = "super";
+static char __pyx_k_Thread[] = "Thread";
 static char __pyx_k_import[] = "__import__";
+static char __pyx_k_module[] = "__module__";
+static char __pyx_k_target[] = "target";
 static char __pyx_k_gazesdk[] = "gazesdk";
+static char __pyx_k_message[] = "message";
+static char __pyx_k_prepare[] = "__prepare__";
+static char __pyx_k_qualname[] = "__qualname__";
 static char __pyx_k_url_size[] = "url_size";
+static char __pyx_k_Exception[] = "Exception";
+static char __pyx_k_metaclass[] = "__metaclass__";
+static char __pyx_k_threading[] = "threading";
 static char __pyx_k_error_code[] = "error_code";
 static char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
+static char __pyx_k_error_codes[] = "error_codes";
 static char __pyx_k_get_version[] = "get_version";
+static char __pyx_k_TrackerError[] = "TrackerError";
+static char __pyx_k_run_event_loop[] = "__run_event_loop";
+static char __pyx_k_tracking_statuses[] = "tracking_statuses";
+static char __pyx_k_TrackerError___init[] = "TrackerError.__init__";
+static char __pyx_k_TOBIIGAZE_ERROR_SUCCESS[] = "TOBIIGAZE_ERROR_SUCCESS";
+static char __pyx_k_TOBIIGAZE_ERROR_TIMEOUT[] = "TOBIIGAZE_ERROR_TIMEOUT";
+static char __pyx_k_TOBIIGAZE_ERROR_UNKNOWN[] = "TOBIIGAZE_ERROR_UNKNOWN";
 static char __pyx_k_get_connected_eye_tracker[] = "get_connected_eye_tracker";
+static char __pyx_k_TOBIIGAZE_ERROR_INVALID_URL[] = "TOBIIGAZE_ERROR_INVALID_URL";
+static char __pyx_k_TOBIIGAZE_ERROR_NOT_CONNECTED[] = "TOBIIGAZE_ERROR_NOT_CONNECTED";
+static char __pyx_k_TOBIIGAZE_ERROR_OUT_OF_MEMORY[] = "TOBIIGAZE_ERROR_OUT_OF_MEMORY";
+static char __pyx_k_TOBIIGAZE_FW_ERROR_UNKNOWN_ID[] = "TOBIIGAZE_FW_ERROR_UNKNOWN_ID";
+static char __pyx_k_TOBIIGAZE_FW_ERROR_STATE_ERROR[] = "TOBIIGAZE_FW_ERROR_STATE_ERROR";
+static char __pyx_k_TOBIIGAZE_FW_ERROR_UNAUTHORIZED[] = "TOBIIGAZE_FW_ERROR_UNAUTHORIZED";
 static char __pyx_k_C_Users_luka_Desktop_gazesdk_gaz[] = "C:\\Users\\luka\\Desktop\\gazesdk\\gazesdk.pyx";
+static char __pyx_k_TOBIIGAZE_ERROR_ALREADY_CONNECTE[] = "TOBIIGAZE_ERROR_ALREADY_CONNECTED";
+static char __pyx_k_TOBIIGAZE_ERROR_BUFFER_TOO_SMALL[] = "TOBIIGAZE_ERROR_BUFFER_TOO_SMALL";
+static char __pyx_k_TOBIIGAZE_ERROR_DEVICE_COMMUNICA[] = "TOBIIGAZE_ERROR_DEVICE_COMMUNICATION_ERROR";
+static char __pyx_k_TOBIIGAZE_ERROR_ENDPOINT_CONNECT[] = "TOBIIGAZE_ERROR_ENDPOINT_CONNECT_FAILED";
+static char __pyx_k_TOBIIGAZE_ERROR_ENDPOINT_NAME_LO[] = "TOBIIGAZE_ERROR_ENDPOINT_NAME_LOOKUP_FAILED";
+static char __pyx_k_TOBIIGAZE_ERROR_INVALID_OPERATIO[] = "TOBIIGAZE_ERROR_INVALID_OPERATION";
+static char __pyx_k_TOBIIGAZE_ERROR_INVALID_PARAMETE[] = "TOBIIGAZE_ERROR_INVALID_PARAMETER";
+static char __pyx_k_TOBIIGAZE_ERROR_OPERATION_ABORTE[] = "TOBIIGAZE_ERROR_OPERATION_ABORTED";
+static char __pyx_k_TOBIIGAZE_ERROR_PROTOCOL_DECODIN[] = "TOBIIGAZE_ERROR_PROTOCOL_DECODING_ERROR";
+static char __pyx_k_TOBIIGAZE_ERROR_PROTOCOL_VERSION[] = "TOBIIGAZE_ERROR_PROTOCOL_VERSION_ERROR";
+static char __pyx_k_TOBIIGAZE_ERROR_TIMESYNC_COMMUNI[] = "TOBIIGAZE_ERROR_TIMESYNC_COMMUNICATION_ERROR";
+static char __pyx_k_TOBIIGAZE_FW_ERROR_EXTENSION_REQ[] = "TOBIIGAZE_FW_ERROR_EXTENSION_REQUIRED";
+static char __pyx_k_TOBIIGAZE_FW_ERROR_INTERNAL_ERRO[] = "TOBIIGAZE_FW_ERROR_INTERNAL_ERROR";
+static char __pyx_k_TOBIIGAZE_FW_ERROR_INVALID_PARAM[] = "TOBIIGAZE_FW_ERROR_INVALID_PARAMETER";
+static char __pyx_k_TOBIIGAZE_FW_ERROR_INVALID_PAYLO[] = "TOBIIGAZE_FW_ERROR_INVALID_PAYLOAD";
+static char __pyx_k_TOBIIGAZE_FW_ERROR_OPERATION_ABO[] = "TOBIIGAZE_FW_ERROR_OPERATION_ABORTED";
+static char __pyx_k_TOBIIGAZE_FW_ERROR_OPERATION_FAI[] = "TOBIIGAZE_FW_ERROR_OPERATION_FAILED";
+static char __pyx_k_TOBIIGAZE_FW_ERROR_UNKNOWN_OPERA[] = "TOBIIGAZE_FW_ERROR_UNKNOWN_OPERATION";
+static char __pyx_k_TOBIIGAZE_FW_ERROR_UNSUPPORTED_O[] = "TOBIIGAZE_FW_ERROR_UNSUPPORTED_OPERATION";
+static char __pyx_k_TOBIIGAZE_TRACKING_STATUS_BOTH_E[] = "TOBIIGAZE_TRACKING_STATUS_BOTH_EYES_TRACKED";
+static char __pyx_k_TOBIIGAZE_TRACKING_STATUS_NO_EYE[] = "TOBIIGAZE_TRACKING_STATUS_NO_EYES_TRACKED";
+static char __pyx_k_TOBIIGAZE_TRACKING_STATUS_ONE_EY[] = "TOBIIGAZE_TRACKING_STATUS_ONE_EYE_TRACKED_PROBABLY_LEFT";
+static char __pyx_k_TOBIIGAZE_TRACKING_STATUS_ONLY_L[] = "TOBIIGAZE_TRACKING_STATUS_ONLY_LEFT_EYE_TRACKED";
+static char __pyx_k_TOBIIGAZE_TRACKING_STATUS_ONLY_R[] = "TOBIIGAZE_TRACKING_STATUS_ONLY_RIGHT_EYE_TRACKED";
+static char __pyx_k_TOBIIGAZE_TRACKING_STATUS_ONE_EY_2[] = "TOBIIGAZE_TRACKING_STATUS_ONE_EYE_TRACKED_UNKNOWN_WHICH";
+static char __pyx_k_TOBIIGAZE_TRACKING_STATUS_ONE_EY_3[] = "TOBIIGAZE_TRACKING_STATUS_ONE_EYE_TRACKED_PROBABLY_RIGHT";
 static PyObject *__pyx_kp_s_C_Users_luka_Desktop_gazesdk_gaz;
+static PyObject *__pyx_n_s_Exception;
 static PyObject *__pyx_n_s_Queue;
+static PyObject *__pyx_n_s_TOBIIGAZE_ERROR_ALREADY_CONNECTE;
+static PyObject *__pyx_n_s_TOBIIGAZE_ERROR_BUFFER_TOO_SMALL;
+static PyObject *__pyx_n_s_TOBIIGAZE_ERROR_DEVICE_COMMUNICA;
+static PyObject *__pyx_n_s_TOBIIGAZE_ERROR_ENDPOINT_CONNECT;
+static PyObject *__pyx_n_s_TOBIIGAZE_ERROR_ENDPOINT_NAME_LO;
+static PyObject *__pyx_n_s_TOBIIGAZE_ERROR_INVALID_OPERATIO;
+static PyObject *__pyx_n_s_TOBIIGAZE_ERROR_INVALID_PARAMETE;
+static PyObject *__pyx_n_s_TOBIIGAZE_ERROR_INVALID_URL;
+static PyObject *__pyx_n_s_TOBIIGAZE_ERROR_NOT_CONNECTED;
+static PyObject *__pyx_n_s_TOBIIGAZE_ERROR_OPERATION_ABORTE;
+static PyObject *__pyx_n_s_TOBIIGAZE_ERROR_OUT_OF_MEMORY;
+static PyObject *__pyx_n_s_TOBIIGAZE_ERROR_PROTOCOL_DECODIN;
+static PyObject *__pyx_n_s_TOBIIGAZE_ERROR_PROTOCOL_VERSION;
+static PyObject *__pyx_n_s_TOBIIGAZE_ERROR_SUCCESS;
+static PyObject *__pyx_n_s_TOBIIGAZE_ERROR_TIMEOUT;
+static PyObject *__pyx_n_s_TOBIIGAZE_ERROR_TIMESYNC_COMMUNI;
+static PyObject *__pyx_n_s_TOBIIGAZE_ERROR_UNKNOWN;
+static PyObject *__pyx_n_s_TOBIIGAZE_FW_ERROR_EXTENSION_REQ;
+static PyObject *__pyx_n_s_TOBIIGAZE_FW_ERROR_INTERNAL_ERRO;
+static PyObject *__pyx_n_s_TOBIIGAZE_FW_ERROR_INVALID_PARAM;
+static PyObject *__pyx_n_s_TOBIIGAZE_FW_ERROR_INVALID_PAYLO;
+static PyObject *__pyx_n_s_TOBIIGAZE_FW_ERROR_OPERATION_ABO;
+static PyObject *__pyx_n_s_TOBIIGAZE_FW_ERROR_OPERATION_FAI;
+static PyObject *__pyx_n_s_TOBIIGAZE_FW_ERROR_STATE_ERROR;
+static PyObject *__pyx_n_s_TOBIIGAZE_FW_ERROR_UNAUTHORIZED;
+static PyObject *__pyx_n_s_TOBIIGAZE_FW_ERROR_UNKNOWN_ID;
+static PyObject *__pyx_n_s_TOBIIGAZE_FW_ERROR_UNKNOWN_OPERA;
+static PyObject *__pyx_n_s_TOBIIGAZE_FW_ERROR_UNSUPPORTED_O;
+static PyObject *__pyx_n_s_TOBIIGAZE_TRACKING_STATUS_BOTH_E;
+static PyObject *__pyx_n_s_TOBIIGAZE_TRACKING_STATUS_NO_EYE;
+static PyObject *__pyx_n_s_TOBIIGAZE_TRACKING_STATUS_ONE_EY;
+static PyObject *__pyx_n_s_TOBIIGAZE_TRACKING_STATUS_ONE_EY_2;
+static PyObject *__pyx_n_s_TOBIIGAZE_TRACKING_STATUS_ONE_EY_3;
+static PyObject *__pyx_n_s_TOBIIGAZE_TRACKING_STATUS_ONLY_L;
+static PyObject *__pyx_n_s_TOBIIGAZE_TRACKING_STATUS_ONLY_R;
+static PyObject *__pyx_n_s_Thread;
+static PyObject *__pyx_n_s_TrackerError;
+static PyObject *__pyx_n_s_TrackerError___init;
+static PyObject *__pyx_n_s_doc;
 static PyObject *__pyx_n_s_error_code;
+static PyObject *__pyx_n_s_error_codes;
 static PyObject *__pyx_n_s_gazesdk;
 static PyObject *__pyx_n_s_get_connected_eye_tracker;
 static PyObject *__pyx_n_s_get_version;
 static PyObject *__pyx_n_s_import;
+static PyObject *__pyx_n_s_init;
+static PyObject *__pyx_n_s_join;
 static PyObject *__pyx_n_s_main;
+static PyObject *__pyx_n_s_message;
+static PyObject *__pyx_n_s_metaclass;
+static PyObject *__pyx_n_s_module;
+static PyObject *__pyx_n_s_prepare;
 static PyObject *__pyx_n_s_put;
 static PyObject *__pyx_n_s_pyx_vtable;
+static PyObject *__pyx_n_s_qualname;
+static PyObject *__pyx_n_s_run_event_loop;
+static PyObject *__pyx_n_s_self;
+static PyObject *__pyx_n_s_start;
+static PyObject *__pyx_n_s_super;
+static PyObject *__pyx_n_s_target;
 static PyObject *__pyx_n_s_test;
+static PyObject *__pyx_n_s_threading;
+static PyObject *__pyx_n_s_tracking_statuses;
 static PyObject *__pyx_n_s_url;
 static PyObject *__pyx_n_s_url_size;
+static PyObject *__pyx_int_0;
+static PyObject *__pyx_int_1;
+static PyObject *__pyx_int_2;
+static PyObject *__pyx_int_3;
+static PyObject *__pyx_int_4;
+static PyObject *__pyx_int_5;
+static PyObject *__pyx_int_6;
+static PyObject *__pyx_int_100;
+static PyObject *__pyx_int_101;
+static PyObject *__pyx_int_200;
+static PyObject *__pyx_int_201;
+static PyObject *__pyx_int_202;
+static PyObject *__pyx_int_203;
+static PyObject *__pyx_int_204;
+static PyObject *__pyx_int_205;
+static PyObject *__pyx_int_206;
+static PyObject *__pyx_int_300;
+static PyObject *__pyx_int_301;
+static PyObject *__pyx_int_536872192;
+static PyObject *__pyx_int_536872193;
+static PyObject *__pyx_int_536872194;
+static PyObject *__pyx_int_536872195;
+static PyObject *__pyx_int_536872196;
+static PyObject *__pyx_int_536872197;
+static PyObject *__pyx_int_536872198;
+static PyObject *__pyx_int_536872199;
+static PyObject *__pyx_int_536872200;
+static PyObject *__pyx_int_536872201;
+static PyObject *__pyx_int_536872202;
 static PyObject *__pyx_codeobj_;
 static PyObject *__pyx_tuple__2;
+static PyObject *__pyx_tuple__4;
 static PyObject *__pyx_codeobj__3;
+static PyObject *__pyx_codeobj__5;
 
-/* "gazesdk.pyx":4
- * import  Queue
+/* "gazesdk.pyx":5
+ * import threading
  * 
  * def get_version():             # <<<<<<<<<<<<<<
  *     return cgazesdk.tobiigaze_get_version()
@@ -796,7 +1029,7 @@ static PyObject *__pyx_pf_7gazesdk_get_version(CYTHON_UNUSED PyObject *__pyx_sel
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("get_version", 0);
 
-  /* "gazesdk.pyx":5
+  /* "gazesdk.pyx":6
  * 
  * def get_version():
  *     return cgazesdk.tobiigaze_get_version()             # <<<<<<<<<<<<<<
@@ -804,14 +1037,14 @@ static PyObject *__pyx_pf_7gazesdk_get_version(CYTHON_UNUSED PyObject *__pyx_sel
  * def get_connected_eye_tracker():
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyBytes_FromString(tobiigaze_get_version()); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 5; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyBytes_FromString(tobiigaze_get_version()); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 6; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "gazesdk.pyx":4
- * import  Queue
+  /* "gazesdk.pyx":5
+ * import threading
  * 
  * def get_version():             # <<<<<<<<<<<<<<
  *     return cgazesdk.tobiigaze_get_version()
@@ -829,7 +1062,7 @@ static PyObject *__pyx_pf_7gazesdk_get_version(CYTHON_UNUSED PyObject *__pyx_sel
   return __pyx_r;
 }
 
-/* "gazesdk.pyx":7
+/* "gazesdk.pyx":8
  *     return cgazesdk.tobiigaze_get_version()
  * 
  * def get_connected_eye_tracker():             # <<<<<<<<<<<<<<
@@ -863,7 +1096,7 @@ static PyObject *__pyx_pf_7gazesdk_2get_connected_eye_tracker(CYTHON_UNUSED PyOb
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("get_connected_eye_tracker", 0);
 
-  /* "gazesdk.pyx":8
+  /* "gazesdk.pyx":9
  * 
  * def get_connected_eye_tracker():
  *     cdef cgazesdk.uint32_t url_size = 256             # <<<<<<<<<<<<<<
@@ -872,7 +1105,7 @@ static PyObject *__pyx_pf_7gazesdk_2get_connected_eye_tracker(CYTHON_UNUSED PyOb
  */
   __pyx_v_url_size = 256;
 
-  /* "gazesdk.pyx":11
+  /* "gazesdk.pyx":12
  *     cdef char url[256]
  *     cdef cgazesdk.tobiigaze_error_code error_code
  *     cgazesdk.tobiigaze_get_connected_eye_tracker(url, url_size, &error_code)             # <<<<<<<<<<<<<<
@@ -881,7 +1114,7 @@ static PyObject *__pyx_pf_7gazesdk_2get_connected_eye_tracker(CYTHON_UNUSED PyOb
  */
   tobiigaze_get_connected_eye_tracker(__pyx_v_url, __pyx_v_url_size, (&__pyx_v_error_code));
 
-  /* "gazesdk.pyx":12
+  /* "gazesdk.pyx":13
  *     cdef cgazesdk.tobiigaze_error_code error_code
  *     cgazesdk.tobiigaze_get_connected_eye_tracker(url, url_size, &error_code)
  *     return url             # <<<<<<<<<<<<<<
@@ -889,13 +1122,13 @@ static PyObject *__pyx_pf_7gazesdk_2get_connected_eye_tracker(CYTHON_UNUSED PyOb
  * cdef class GazeDataEye:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_FromString(__pyx_v_url); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 12; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyObject_FromString(__pyx_v_url); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 13; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "gazesdk.pyx":7
+  /* "gazesdk.pyx":8
  *     return cgazesdk.tobiigaze_get_version()
  * 
  * def get_connected_eye_tracker():             # <<<<<<<<<<<<<<
@@ -914,12 +1147,12 @@ static PyObject *__pyx_pf_7gazesdk_2get_connected_eye_tracker(CYTHON_UNUSED PyOb
   return __pyx_r;
 }
 
-/* "gazesdk.pyx":21
+/* "gazesdk.pyx":22
  *     cdef readonly gaze_point_on_display_normalized
  * 
  *     cdef public void init(self, cgazesdk.tobiigaze_gaze_data_eye _gaze_data_eye):             # <<<<<<<<<<<<<<
- * 
- *         self.eye_position_from_eye_tracker_mm = _gaze_data_eye.eye_position_from_eye_tracker_mm.x, _gaze_data_eye.eye_position_from_eye_tracker_mm.y, _gaze_data_eye.eye_position_from_eye_tracker_mm.z
+ *         self.eye_position_from_eye_tracker_mm = (_gaze_data_eye.eye_position_from_eye_tracker_mm.x,
+ *                                                  _gaze_data_eye.eye_position_from_eye_tracker_mm.y,
  */
 
 void __pyx_f_7gazesdk_11GazeDataEye_init(struct __pyx_obj_7gazesdk_GazeDataEye *__pyx_v_self, struct tobiigaze_gaze_data_eye __pyx_v__gaze_data_eye) {
@@ -934,18 +1167,42 @@ void __pyx_f_7gazesdk_11GazeDataEye_init(struct __pyx_obj_7gazesdk_GazeDataEye *
   __Pyx_RefNannySetupContext("init", 0);
 
   /* "gazesdk.pyx":23
- *     cdef public void init(self, cgazesdk.tobiigaze_gaze_data_eye _gaze_data_eye):
  * 
- *         self.eye_position_from_eye_tracker_mm = _gaze_data_eye.eye_position_from_eye_tracker_mm.x, _gaze_data_eye.eye_position_from_eye_tracker_mm.y, _gaze_data_eye.eye_position_from_eye_tracker_mm.z             # <<<<<<<<<<<<<<
- *         self.eye_position_in_track_box_normalized = _gaze_data_eye.eye_position_in_track_box_normalized.x, _gaze_data_eye.eye_position_in_track_box_normalized.y, _gaze_data_eye.eye_position_in_track_box_normalized.z
- *         self.gaze_point_from_eye_tracker_mm = _gaze_data_eye.gaze_point_from_eye_tracker_mm.x, _gaze_data_eye.gaze_point_from_eye_tracker_mm.y, _gaze_data_eye.gaze_point_from_eye_tracker_mm.z
+ *     cdef public void init(self, cgazesdk.tobiigaze_gaze_data_eye _gaze_data_eye):
+ *         self.eye_position_from_eye_tracker_mm = (_gaze_data_eye.eye_position_from_eye_tracker_mm.x,             # <<<<<<<<<<<<<<
+ *                                                  _gaze_data_eye.eye_position_from_eye_tracker_mm.y,
+ *                                                  _gaze_data_eye.eye_position_from_eye_tracker_mm.z)
  */
   __pyx_t_1 = PyFloat_FromDouble(__pyx_v__gaze_data_eye.eye_position_from_eye_tracker_mm.x); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyFloat_FromDouble(__pyx_v__gaze_data_eye.eye_position_from_eye_tracker_mm.y); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+
+  /* "gazesdk.pyx":24
+ *     cdef public void init(self, cgazesdk.tobiigaze_gaze_data_eye _gaze_data_eye):
+ *         self.eye_position_from_eye_tracker_mm = (_gaze_data_eye.eye_position_from_eye_tracker_mm.x,
+ *                                                  _gaze_data_eye.eye_position_from_eye_tracker_mm.y,             # <<<<<<<<<<<<<<
+ *                                                  _gaze_data_eye.eye_position_from_eye_tracker_mm.z)
+ * 
+ */
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_v__gaze_data_eye.eye_position_from_eye_tracker_mm.y); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 24; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyFloat_FromDouble(__pyx_v__gaze_data_eye.eye_position_from_eye_tracker_mm.z); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+
+  /* "gazesdk.pyx":25
+ *         self.eye_position_from_eye_tracker_mm = (_gaze_data_eye.eye_position_from_eye_tracker_mm.x,
+ *                                                  _gaze_data_eye.eye_position_from_eye_tracker_mm.y,
+ *                                                  _gaze_data_eye.eye_position_from_eye_tracker_mm.z)             # <<<<<<<<<<<<<<
+ * 
+ *         self.eye_position_in_track_box_normalized = (_gaze_data_eye.eye_position_in_track_box_normalized.x,
+ */
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_v__gaze_data_eye.eye_position_from_eye_tracker_mm.z); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 25; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
+
+  /* "gazesdk.pyx":23
+ * 
+ *     cdef public void init(self, cgazesdk.tobiigaze_gaze_data_eye _gaze_data_eye):
+ *         self.eye_position_from_eye_tracker_mm = (_gaze_data_eye.eye_position_from_eye_tracker_mm.x,             # <<<<<<<<<<<<<<
+ *                                                  _gaze_data_eye.eye_position_from_eye_tracker_mm.y,
+ *                                                  _gaze_data_eye.eye_position_from_eye_tracker_mm.z)
+ */
   __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GIVEREF(__pyx_t_1);
@@ -963,20 +1220,44 @@ void __pyx_f_7gazesdk_11GazeDataEye_init(struct __pyx_obj_7gazesdk_GazeDataEye *
   __pyx_v_self->eye_position_from_eye_tracker_mm = __pyx_t_4;
   __pyx_t_4 = 0;
 
-  /* "gazesdk.pyx":24
+  /* "gazesdk.pyx":27
+ *                                                  _gaze_data_eye.eye_position_from_eye_tracker_mm.z)
  * 
- *         self.eye_position_from_eye_tracker_mm = _gaze_data_eye.eye_position_from_eye_tracker_mm.x, _gaze_data_eye.eye_position_from_eye_tracker_mm.y, _gaze_data_eye.eye_position_from_eye_tracker_mm.z
- *         self.eye_position_in_track_box_normalized = _gaze_data_eye.eye_position_in_track_box_normalized.x, _gaze_data_eye.eye_position_in_track_box_normalized.y, _gaze_data_eye.eye_position_in_track_box_normalized.z             # <<<<<<<<<<<<<<
- *         self.gaze_point_from_eye_tracker_mm = _gaze_data_eye.gaze_point_from_eye_tracker_mm.x, _gaze_data_eye.gaze_point_from_eye_tracker_mm.y, _gaze_data_eye.gaze_point_from_eye_tracker_mm.z
- *         self.gaze_point_on_display_normalized = _gaze_data_eye.gaze_point_on_display_normalized.x, _gaze_data_eye.gaze_point_on_display_normalized.y
+ *         self.eye_position_in_track_box_normalized = (_gaze_data_eye.eye_position_in_track_box_normalized.x,             # <<<<<<<<<<<<<<
+ *                                                      _gaze_data_eye.eye_position_in_track_box_normalized.y,
+ *                                                      _gaze_data_eye.eye_position_in_track_box_normalized.z)
  */
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_v__gaze_data_eye.eye_position_in_track_box_normalized.x); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 24; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_v__gaze_data_eye.eye_position_in_track_box_normalized.x); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 27; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = PyFloat_FromDouble(__pyx_v__gaze_data_eye.eye_position_in_track_box_normalized.y); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 24; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+
+  /* "gazesdk.pyx":28
+ * 
+ *         self.eye_position_in_track_box_normalized = (_gaze_data_eye.eye_position_in_track_box_normalized.x,
+ *                                                      _gaze_data_eye.eye_position_in_track_box_normalized.y,             # <<<<<<<<<<<<<<
+ *                                                      _gaze_data_eye.eye_position_in_track_box_normalized.z)
+ * 
+ */
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_v__gaze_data_eye.eye_position_in_track_box_normalized.y); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 28; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = PyFloat_FromDouble(__pyx_v__gaze_data_eye.eye_position_in_track_box_normalized.z); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 24; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+
+  /* "gazesdk.pyx":29
+ *         self.eye_position_in_track_box_normalized = (_gaze_data_eye.eye_position_in_track_box_normalized.x,
+ *                                                      _gaze_data_eye.eye_position_in_track_box_normalized.y,
+ *                                                      _gaze_data_eye.eye_position_in_track_box_normalized.z)             # <<<<<<<<<<<<<<
+ * 
+ *         self.gaze_point_from_eye_tracker_mm = (_gaze_data_eye.gaze_point_from_eye_tracker_mm.x,
+ */
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_v__gaze_data_eye.eye_position_in_track_box_normalized.z); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 29; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = PyTuple_New(3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 24; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+
+  /* "gazesdk.pyx":27
+ *                                                  _gaze_data_eye.eye_position_from_eye_tracker_mm.z)
+ * 
+ *         self.eye_position_in_track_box_normalized = (_gaze_data_eye.eye_position_in_track_box_normalized.x,             # <<<<<<<<<<<<<<
+ *                                                      _gaze_data_eye.eye_position_in_track_box_normalized.y,
+ *                                                      _gaze_data_eye.eye_position_in_track_box_normalized.z)
+ */
+  __pyx_t_1 = PyTuple_New(3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 27; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_4);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_4);
@@ -993,20 +1274,44 @@ void __pyx_f_7gazesdk_11GazeDataEye_init(struct __pyx_obj_7gazesdk_GazeDataEye *
   __pyx_v_self->eye_position_in_track_box_normalized = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "gazesdk.pyx":25
- *         self.eye_position_from_eye_tracker_mm = _gaze_data_eye.eye_position_from_eye_tracker_mm.x, _gaze_data_eye.eye_position_from_eye_tracker_mm.y, _gaze_data_eye.eye_position_from_eye_tracker_mm.z
- *         self.eye_position_in_track_box_normalized = _gaze_data_eye.eye_position_in_track_box_normalized.x, _gaze_data_eye.eye_position_in_track_box_normalized.y, _gaze_data_eye.eye_position_in_track_box_normalized.z
- *         self.gaze_point_from_eye_tracker_mm = _gaze_data_eye.gaze_point_from_eye_tracker_mm.x, _gaze_data_eye.gaze_point_from_eye_tracker_mm.y, _gaze_data_eye.gaze_point_from_eye_tracker_mm.z             # <<<<<<<<<<<<<<
- *         self.gaze_point_on_display_normalized = _gaze_data_eye.gaze_point_on_display_normalized.x, _gaze_data_eye.gaze_point_on_display_normalized.y
+  /* "gazesdk.pyx":31
+ *                                                      _gaze_data_eye.eye_position_in_track_box_normalized.z)
+ * 
+ *         self.gaze_point_from_eye_tracker_mm = (_gaze_data_eye.gaze_point_from_eye_tracker_mm.x,             # <<<<<<<<<<<<<<
+ *                                                _gaze_data_eye.gaze_point_from_eye_tracker_mm.y,
+ *                                                _gaze_data_eye.gaze_point_from_eye_tracker_mm.z)
+ */
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v__gaze_data_eye.gaze_point_from_eye_tracker_mm.x); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_1);
+
+  /* "gazesdk.pyx":32
+ * 
+ *         self.gaze_point_from_eye_tracker_mm = (_gaze_data_eye.gaze_point_from_eye_tracker_mm.x,
+ *                                                _gaze_data_eye.gaze_point_from_eye_tracker_mm.y,             # <<<<<<<<<<<<<<
+ *                                                _gaze_data_eye.gaze_point_from_eye_tracker_mm.z)
  * 
  */
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v__gaze_data_eye.gaze_point_from_eye_tracker_mm.x); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 25; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyFloat_FromDouble(__pyx_v__gaze_data_eye.gaze_point_from_eye_tracker_mm.y); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 25; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_v__gaze_data_eye.gaze_point_from_eye_tracker_mm.y); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 32; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyFloat_FromDouble(__pyx_v__gaze_data_eye.gaze_point_from_eye_tracker_mm.z); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 25; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+
+  /* "gazesdk.pyx":33
+ *         self.gaze_point_from_eye_tracker_mm = (_gaze_data_eye.gaze_point_from_eye_tracker_mm.x,
+ *                                                _gaze_data_eye.gaze_point_from_eye_tracker_mm.y,
+ *                                                _gaze_data_eye.gaze_point_from_eye_tracker_mm.z)             # <<<<<<<<<<<<<<
+ * 
+ *         self.gaze_point_on_display_normalized = (_gaze_data_eye.gaze_point_on_display_normalized.x,
+ */
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_v__gaze_data_eye.gaze_point_from_eye_tracker_mm.z); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 33; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 25; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+
+  /* "gazesdk.pyx":31
+ *                                                      _gaze_data_eye.eye_position_in_track_box_normalized.z)
+ * 
+ *         self.gaze_point_from_eye_tracker_mm = (_gaze_data_eye.gaze_point_from_eye_tracker_mm.x,             # <<<<<<<<<<<<<<
+ *                                                _gaze_data_eye.gaze_point_from_eye_tracker_mm.y,
+ *                                                _gaze_data_eye.gaze_point_from_eye_tracker_mm.z)
+ */
+  __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_1);
@@ -1023,18 +1328,34 @@ void __pyx_f_7gazesdk_11GazeDataEye_init(struct __pyx_obj_7gazesdk_GazeDataEye *
   __pyx_v_self->gaze_point_from_eye_tracker_mm = __pyx_t_4;
   __pyx_t_4 = 0;
 
-  /* "gazesdk.pyx":26
- *         self.eye_position_in_track_box_normalized = _gaze_data_eye.eye_position_in_track_box_normalized.x, _gaze_data_eye.eye_position_in_track_box_normalized.y, _gaze_data_eye.eye_position_in_track_box_normalized.z
- *         self.gaze_point_from_eye_tracker_mm = _gaze_data_eye.gaze_point_from_eye_tracker_mm.x, _gaze_data_eye.gaze_point_from_eye_tracker_mm.y, _gaze_data_eye.gaze_point_from_eye_tracker_mm.z
- *         self.gaze_point_on_display_normalized = _gaze_data_eye.gaze_point_on_display_normalized.x, _gaze_data_eye.gaze_point_on_display_normalized.y             # <<<<<<<<<<<<<<
+  /* "gazesdk.pyx":35
+ *                                                _gaze_data_eye.gaze_point_from_eye_tracker_mm.z)
+ * 
+ *         self.gaze_point_on_display_normalized = (_gaze_data_eye.gaze_point_on_display_normalized.x,             # <<<<<<<<<<<<<<
+ *                                                  _gaze_data_eye.gaze_point_on_display_normalized.y)
+ * 
+ */
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_v__gaze_data_eye.gaze_point_on_display_normalized.x); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 35; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_4);
+
+  /* "gazesdk.pyx":36
+ * 
+ *         self.gaze_point_on_display_normalized = (_gaze_data_eye.gaze_point_on_display_normalized.x,
+ *                                                  _gaze_data_eye.gaze_point_on_display_normalized.y)             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_v__gaze_data_eye.gaze_point_on_display_normalized.x); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 26; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = PyFloat_FromDouble(__pyx_v__gaze_data_eye.gaze_point_on_display_normalized.y); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 26; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_v__gaze_data_eye.gaze_point_on_display_normalized.y); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 36; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 26; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+
+  /* "gazesdk.pyx":35
+ *                                                _gaze_data_eye.gaze_point_from_eye_tracker_mm.z)
+ * 
+ *         self.gaze_point_on_display_normalized = (_gaze_data_eye.gaze_point_on_display_normalized.x,             # <<<<<<<<<<<<<<
+ *                                                  _gaze_data_eye.gaze_point_on_display_normalized.y)
+ * 
+ */
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 35; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GIVEREF(__pyx_t_4);
   PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_4);
@@ -1048,12 +1369,12 @@ void __pyx_f_7gazesdk_11GazeDataEye_init(struct __pyx_obj_7gazesdk_GazeDataEye *
   __pyx_v_self->gaze_point_on_display_normalized = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "gazesdk.pyx":21
+  /* "gazesdk.pyx":22
  *     cdef readonly gaze_point_on_display_normalized
  * 
  *     cdef public void init(self, cgazesdk.tobiigaze_gaze_data_eye _gaze_data_eye):             # <<<<<<<<<<<<<<
- * 
- *         self.eye_position_from_eye_tracker_mm = _gaze_data_eye.eye_position_from_eye_tracker_mm.x, _gaze_data_eye.eye_position_from_eye_tracker_mm.y, _gaze_data_eye.eye_position_from_eye_tracker_mm.z
+ *         self.eye_position_from_eye_tracker_mm = (_gaze_data_eye.eye_position_from_eye_tracker_mm.x,
+ *                                                  _gaze_data_eye.eye_position_from_eye_tracker_mm.y,
  */
 
   /* function exit code */
@@ -1068,7 +1389,7 @@ void __pyx_f_7gazesdk_11GazeDataEye_init(struct __pyx_obj_7gazesdk_GazeDataEye *
   __Pyx_RefNannyFinishContext();
 }
 
-/* "gazesdk.pyx":16
+/* "gazesdk.pyx":17
  * cdef class GazeDataEye:
  * 
  *     cdef readonly eye_position_from_eye_tracker_mm             # <<<<<<<<<<<<<<
@@ -1105,7 +1426,7 @@ static PyObject *__pyx_pf_7gazesdk_11GazeDataEye_32eye_position_from_eye_tracker
   return __pyx_r;
 }
 
-/* "gazesdk.pyx":17
+/* "gazesdk.pyx":18
  * 
  *     cdef readonly eye_position_from_eye_tracker_mm
  *     cdef readonly eye_position_in_track_box_normalized             # <<<<<<<<<<<<<<
@@ -1142,7 +1463,7 @@ static PyObject *__pyx_pf_7gazesdk_11GazeDataEye_36eye_position_in_track_box_nor
   return __pyx_r;
 }
 
-/* "gazesdk.pyx":18
+/* "gazesdk.pyx":19
  *     cdef readonly eye_position_from_eye_tracker_mm
  *     cdef readonly eye_position_in_track_box_normalized
  *     cdef readonly gaze_point_from_eye_tracker_mm             # <<<<<<<<<<<<<<
@@ -1179,7 +1500,7 @@ static PyObject *__pyx_pf_7gazesdk_11GazeDataEye_30gaze_point_from_eye_tracker_m
   return __pyx_r;
 }
 
-/* "gazesdk.pyx":19
+/* "gazesdk.pyx":20
  *     cdef readonly eye_position_in_track_box_normalized
  *     cdef readonly gaze_point_from_eye_tracker_mm
  *     cdef readonly gaze_point_on_display_normalized             # <<<<<<<<<<<<<<
@@ -1216,7 +1537,7 @@ static PyObject *__pyx_pf_7gazesdk_11GazeDataEye_32gaze_point_on_display_normali
   return __pyx_r;
 }
 
-/* "gazesdk.pyx":37
+/* "gazesdk.pyx":46
  *     cdef readonly GazeDataEye right
  * 
  *     cdef void init(self, cgazesdk.tobiigaze_gaze_data* _gaze_data):             # <<<<<<<<<<<<<<
@@ -1234,7 +1555,7 @@ static void __pyx_f_7gazesdk_8GazeData_init(struct __pyx_obj_7gazesdk_GazeData *
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("init", 0);
 
-  /* "gazesdk.pyx":38
+  /* "gazesdk.pyx":47
  * 
  *     cdef void init(self, cgazesdk.tobiigaze_gaze_data* _gaze_data):
  *         self.timestamp = _gaze_data.timestamp             # <<<<<<<<<<<<<<
@@ -1244,7 +1565,7 @@ static void __pyx_f_7gazesdk_8GazeData_init(struct __pyx_obj_7gazesdk_GazeData *
   __pyx_t_1 = __pyx_v__gaze_data->timestamp;
   __pyx_v_self->timestamp = __pyx_t_1;
 
-  /* "gazesdk.pyx":39
+  /* "gazesdk.pyx":48
  *     cdef void init(self, cgazesdk.tobiigaze_gaze_data* _gaze_data):
  *         self.timestamp = _gaze_data.timestamp
  *         self.tracking_status = _gaze_data.tracking_status             # <<<<<<<<<<<<<<
@@ -1254,14 +1575,14 @@ static void __pyx_f_7gazesdk_8GazeData_init(struct __pyx_obj_7gazesdk_GazeData *
   __pyx_t_2 = __pyx_v__gaze_data->tracking_status;
   __pyx_v_self->tracking_status = __pyx_t_2;
 
-  /* "gazesdk.pyx":40
+  /* "gazesdk.pyx":49
  *         self.timestamp = _gaze_data.timestamp
  *         self.tracking_status = _gaze_data.tracking_status
  *         self.left = GazeDataEye()             # <<<<<<<<<<<<<<
  *         self.left.init(_gaze_data.left)
  *         self.right = GazeDataEye()
  */
-  __pyx_t_3 = __Pyx_PyObject_Call(((PyObject *)((PyObject*)__pyx_ptype_7gazesdk_GazeDataEye)), __pyx_empty_tuple, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 40; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyObject_Call(((PyObject *)((PyObject*)__pyx_ptype_7gazesdk_GazeDataEye)), __pyx_empty_tuple, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 49; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_3);
   __Pyx_GOTREF(__pyx_v_self->left);
@@ -1269,7 +1590,7 @@ static void __pyx_f_7gazesdk_8GazeData_init(struct __pyx_obj_7gazesdk_GazeData *
   __pyx_v_self->left = ((struct __pyx_obj_7gazesdk_GazeDataEye *)__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "gazesdk.pyx":41
+  /* "gazesdk.pyx":50
  *         self.tracking_status = _gaze_data.tracking_status
  *         self.left = GazeDataEye()
  *         self.left.init(_gaze_data.left)             # <<<<<<<<<<<<<<
@@ -1278,14 +1599,14 @@ static void __pyx_f_7gazesdk_8GazeData_init(struct __pyx_obj_7gazesdk_GazeData *
  */
   ((struct __pyx_vtabstruct_7gazesdk_GazeDataEye *)__pyx_v_self->left->__pyx_vtab)->init(__pyx_v_self->left, __pyx_v__gaze_data->left);
 
-  /* "gazesdk.pyx":42
+  /* "gazesdk.pyx":51
  *         self.left = GazeDataEye()
  *         self.left.init(_gaze_data.left)
  *         self.right = GazeDataEye()             # <<<<<<<<<<<<<<
  *         self.right.init(_gaze_data.right)
  * 
  */
-  __pyx_t_3 = __Pyx_PyObject_Call(((PyObject *)((PyObject*)__pyx_ptype_7gazesdk_GazeDataEye)), __pyx_empty_tuple, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyObject_Call(((PyObject *)((PyObject*)__pyx_ptype_7gazesdk_GazeDataEye)), __pyx_empty_tuple, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 51; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_3);
   __Pyx_GOTREF(__pyx_v_self->right);
@@ -1293,7 +1614,7 @@ static void __pyx_f_7gazesdk_8GazeData_init(struct __pyx_obj_7gazesdk_GazeData *
   __pyx_v_self->right = ((struct __pyx_obj_7gazesdk_GazeDataEye *)__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "gazesdk.pyx":43
+  /* "gazesdk.pyx":52
  *         self.left.init(_gaze_data.left)
  *         self.right = GazeDataEye()
  *         self.right.init(_gaze_data.right)             # <<<<<<<<<<<<<<
@@ -1302,7 +1623,7 @@ static void __pyx_f_7gazesdk_8GazeData_init(struct __pyx_obj_7gazesdk_GazeData *
  */
   ((struct __pyx_vtabstruct_7gazesdk_GazeDataEye *)__pyx_v_self->right->__pyx_vtab)->init(__pyx_v_self->right, __pyx_v__gaze_data->right);
 
-  /* "gazesdk.pyx":37
+  /* "gazesdk.pyx":46
  *     cdef readonly GazeDataEye right
  * 
  *     cdef void init(self, cgazesdk.tobiigaze_gaze_data* _gaze_data):             # <<<<<<<<<<<<<<
@@ -1319,12 +1640,12 @@ static void __pyx_f_7gazesdk_8GazeData_init(struct __pyx_obj_7gazesdk_GazeData *
   __Pyx_RefNannyFinishContext();
 }
 
-/* "gazesdk.pyx":31
+/* "gazesdk.pyx":41
  * cdef class GazeData:
  * 
  *     cdef readonly cgazesdk.uint64_t timestamp             # <<<<<<<<<<<<<<
  *     cdef readonly cgazesdk.tobiigaze_tracking_status tracking_status
- * 
+ *     cdef readonly GazeDataEye left
  */
 
 /* Python wrapper */
@@ -1349,7 +1670,7 @@ static PyObject *__pyx_pf_7gazesdk_8GazeData_9timestamp___get__(struct __pyx_obj
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_uint64_t(__pyx_v_self->timestamp); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyInt_From_uint64_t(__pyx_v_self->timestamp); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 41; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -1366,12 +1687,12 @@ static PyObject *__pyx_pf_7gazesdk_8GazeData_9timestamp___get__(struct __pyx_obj
   return __pyx_r;
 }
 
-/* "gazesdk.pyx":32
+/* "gazesdk.pyx":42
  * 
  *     cdef readonly cgazesdk.uint64_t timestamp
  *     cdef readonly cgazesdk.tobiigaze_tracking_status tracking_status             # <<<<<<<<<<<<<<
- * 
  *     cdef readonly GazeDataEye left
+ *     cdef readonly GazeDataEye right
  */
 
 /* Python wrapper */
@@ -1396,7 +1717,7 @@ static PyObject *__pyx_pf_7gazesdk_8GazeData_15tracking_status___get__(struct __
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyInt_FromLong(__pyx_v_self->tracking_status); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 32; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyInt_FromLong(__pyx_v_self->tracking_status); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -1413,9 +1734,9 @@ static PyObject *__pyx_pf_7gazesdk_8GazeData_15tracking_status___get__(struct __
   return __pyx_r;
 }
 
-/* "gazesdk.pyx":34
+/* "gazesdk.pyx":43
+ *     cdef readonly cgazesdk.uint64_t timestamp
  *     cdef readonly cgazesdk.tobiigaze_tracking_status tracking_status
- * 
  *     cdef readonly GazeDataEye left             # <<<<<<<<<<<<<<
  *     cdef readonly GazeDataEye right
  * 
@@ -1450,8 +1771,8 @@ static PyObject *__pyx_pf_7gazesdk_8GazeData_4left___get__(struct __pyx_obj_7gaz
   return __pyx_r;
 }
 
-/* "gazesdk.pyx":35
- * 
+/* "gazesdk.pyx":44
+ *     cdef readonly cgazesdk.tobiigaze_tracking_status tracking_status
  *     cdef readonly GazeDataEye left
  *     cdef readonly GazeDataEye right             # <<<<<<<<<<<<<<
  * 
@@ -1487,12 +1808,12 @@ static PyObject *__pyx_pf_7gazesdk_8GazeData_5right___get__(struct __pyx_obj_7ga
   return __pyx_r;
 }
 
-/* "gazesdk.pyx":46
+/* "gazesdk.pyx":55
  * 
  * 
- * cdef void gaze_callback(cgazesdk.tobiigaze_gaze_data* _gaze_data, cgazesdk.tobiigaze_gaze_data_extensions* _gaze_data_extensions, void *user_data) with gil:             # <<<<<<<<<<<<<<
+ * cdef void gaze_callback(cgazesdk.tobiigaze_gaze_data* _gaze_data, cgazesdk.tobiigaze_gaze_data_extensions* _gaze_data_extensions,             # <<<<<<<<<<<<<<
+ *           void *user_data) with gil:
  *     g = GazeData()
- *     g.init(_gaze_data)
  */
 
 static void __pyx_f_7gazesdk_gaze_callback(struct tobiigaze_gaze_data *__pyx_v__gaze_data, CYTHON_UNUSED struct tobiigaze_gaze_data_extensions *__pyx_v__gaze_data_extensions, void *__pyx_v_user_data) {
@@ -1511,20 +1832,20 @@ static void __pyx_f_7gazesdk_gaze_callback(struct tobiigaze_gaze_data *__pyx_v__
   #endif
   __Pyx_RefNannySetupContext("gaze_callback", 0);
 
-  /* "gazesdk.pyx":47
- * 
- * cdef void gaze_callback(cgazesdk.tobiigaze_gaze_data* _gaze_data, cgazesdk.tobiigaze_gaze_data_extensions* _gaze_data_extensions, void *user_data) with gil:
+  /* "gazesdk.pyx":57
+ * cdef void gaze_callback(cgazesdk.tobiigaze_gaze_data* _gaze_data, cgazesdk.tobiigaze_gaze_data_extensions* _gaze_data_extensions,
+ *           void *user_data) with gil:
  *     g = GazeData()             # <<<<<<<<<<<<<<
  *     g.init(_gaze_data)
  *     event_queue = <object>user_data
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)((PyObject*)__pyx_ptype_7gazesdk_GazeData)), __pyx_empty_tuple, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 47; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)((PyObject*)__pyx_ptype_7gazesdk_GazeData)), __pyx_empty_tuple, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 57; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_g = ((struct __pyx_obj_7gazesdk_GazeData *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "gazesdk.pyx":48
- * cdef void gaze_callback(cgazesdk.tobiigaze_gaze_data* _gaze_data, cgazesdk.tobiigaze_gaze_data_extensions* _gaze_data_extensions, void *user_data) with gil:
+  /* "gazesdk.pyx":58
+ *           void *user_data) with gil:
  *     g = GazeData()
  *     g.init(_gaze_data)             # <<<<<<<<<<<<<<
  *     event_queue = <object>user_data
@@ -1532,7 +1853,7 @@ static void __pyx_f_7gazesdk_gaze_callback(struct tobiigaze_gaze_data *__pyx_v__
  */
   ((struct __pyx_vtabstruct_7gazesdk_GazeData *)__pyx_v_g->__pyx_vtab)->init(__pyx_v_g, __pyx_v__gaze_data);
 
-  /* "gazesdk.pyx":49
+  /* "gazesdk.pyx":59
  *     g = GazeData()
  *     g.init(_gaze_data)
  *     event_queue = <object>user_data             # <<<<<<<<<<<<<<
@@ -1544,14 +1865,14 @@ static void __pyx_f_7gazesdk_gaze_callback(struct tobiigaze_gaze_data *__pyx_v__
   __pyx_v_event_queue = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "gazesdk.pyx":50
+  /* "gazesdk.pyx":60
  *     g.init(_gaze_data)
  *     event_queue = <object>user_data
  *     event_queue.put(g)             # <<<<<<<<<<<<<<
  * 
- * cdef class Tracker:
+ * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_event_queue, __pyx_n_s_put); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 50; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_event_queue, __pyx_n_s_put); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 60; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_2))) {
@@ -1564,28 +1885,28 @@ static void __pyx_f_7gazesdk_gaze_callback(struct tobiigaze_gaze_data *__pyx_v__
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, ((PyObject *)__pyx_v_g)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 50; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, ((PyObject *)__pyx_v_g)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 60; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
   } else {
-    __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 50; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 60; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __pyx_t_3 = NULL;
     __Pyx_INCREF(((PyObject *)__pyx_v_g));
     __Pyx_GIVEREF(((PyObject *)__pyx_v_g));
     PyTuple_SET_ITEM(__pyx_t_4, 0+1, ((PyObject *)__pyx_v_g));
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 50; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 60; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "gazesdk.pyx":46
+  /* "gazesdk.pyx":55
  * 
  * 
- * cdef void gaze_callback(cgazesdk.tobiigaze_gaze_data* _gaze_data, cgazesdk.tobiigaze_gaze_data_extensions* _gaze_data_extensions, void *user_data) with gil:             # <<<<<<<<<<<<<<
+ * cdef void gaze_callback(cgazesdk.tobiigaze_gaze_data* _gaze_data, cgazesdk.tobiigaze_gaze_data_extensions* _gaze_data_extensions,             # <<<<<<<<<<<<<<
+ *           void *user_data) with gil:
  *     g = GazeData()
- *     g.init(_gaze_data)
  */
 
   /* function exit code */
@@ -1605,51 +1926,92 @@ static void __pyx_f_7gazesdk_gaze_callback(struct tobiigaze_gaze_data *__pyx_v__
   #endif
 }
 
-/* "gazesdk.pyx":57
- *     cdef public object event_queue
+/* "gazesdk.pyx":69
+ *     cdef object event_loop
  * 
- *     def __init__(self):             # <<<<<<<<<<<<<<
+ *     def __cinit__(self, url):             # <<<<<<<<<<<<<<
  *         self.event_queue = Queue.Queue()
- * 
+ *         cdef cgazesdk.tobiigaze_error_code error_code
  */
 
 /* Python wrapper */
-static int __pyx_pw_7gazesdk_7Tracker_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_7gazesdk_7Tracker_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_7gazesdk_7Tracker_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_7gazesdk_7Tracker_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  PyObject *__pyx_v_url = 0;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
   int __pyx_r;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("__init__ (wrapper)", 0);
-  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
-    __Pyx_RaiseArgtupleInvalid("__init__", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return -1;}
-  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "__init__", 0))) return -1;
-  __pyx_r = __pyx_pf_7gazesdk_7Tracker___init__(((struct __pyx_obj_7gazesdk_Tracker *)__pyx_v_self));
+  __Pyx_RefNannySetupContext("__cinit__ (wrapper)", 0);
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_url,0};
+    PyObject* values[1] = {0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_url)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 69; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+    }
+    __pyx_v_url = values[0];
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 69; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("gazesdk.Tracker.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return -1;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_7gazesdk_7Tracker___cinit__(((struct __pyx_obj_7gazesdk_Tracker *)__pyx_v_self), __pyx_v_url);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_7gazesdk_7Tracker___init__(struct __pyx_obj_7gazesdk_Tracker *__pyx_v_self) {
+static int __pyx_pf_7gazesdk_7Tracker___cinit__(struct __pyx_obj_7gazesdk_Tracker *__pyx_v_self, PyObject *__pyx_v_url) {
+  tobiigaze_error_code __pyx_v_error_code;
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
   PyObject *__pyx_t_3 = NULL;
+  char const *__pyx_t_4;
+  int __pyx_t_5;
+  PyObject *__pyx_t_6 = NULL;
+  PyObject *__pyx_t_7 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("__init__", 0);
+  __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "gazesdk.pyx":58
+  /* "gazesdk.pyx":70
  * 
- *     def __init__(self):
+ *     def __cinit__(self, url):
  *         self.event_queue = Queue.Queue()             # <<<<<<<<<<<<<<
- * 
- *     def create(self, url):
+ *         cdef cgazesdk.tobiigaze_error_code error_code
+ *         self._tracker = cgazesdk.tobiigaze_create(url, &error_code)
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_Queue); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 58; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_Queue); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 70; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_Queue); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 58; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_Queue); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 70; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = NULL;
@@ -1663,10 +2025,10 @@ static int __pyx_pf_7gazesdk_7Tracker___init__(struct __pyx_obj_7gazesdk_Tracker
     }
   }
   if (__pyx_t_2) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 58; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 70; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else {
-    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 58; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 70; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -1676,12 +2038,74 @@ static int __pyx_pf_7gazesdk_7Tracker___init__(struct __pyx_obj_7gazesdk_Tracker
   __pyx_v_self->event_queue = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "gazesdk.pyx":57
- *     cdef public object event_queue
- * 
- *     def __init__(self):             # <<<<<<<<<<<<<<
+  /* "gazesdk.pyx":72
  *         self.event_queue = Queue.Queue()
+ *         cdef cgazesdk.tobiigaze_error_code error_code
+ *         self._tracker = cgazesdk.tobiigaze_create(url, &error_code)             # <<<<<<<<<<<<<<
+ *         if error_code > 0:
+ *             raise TrackerError(error_code)
+ */
+  __pyx_t_4 = __Pyx_PyObject_AsString(__pyx_v_url); if (unlikely((!__pyx_t_4) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 72; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_v_self->_tracker = tobiigaze_create(__pyx_t_4, (&__pyx_v_error_code));
+
+  /* "gazesdk.pyx":73
+ *         cdef cgazesdk.tobiigaze_error_code error_code
+ *         self._tracker = cgazesdk.tobiigaze_create(url, &error_code)
+ *         if error_code > 0:             # <<<<<<<<<<<<<<
+ *             raise TrackerError(error_code)
  * 
+ */
+  __pyx_t_5 = ((__pyx_v_error_code > 0) != 0);
+  if (__pyx_t_5) {
+
+    /* "gazesdk.pyx":74
+ *         self._tracker = cgazesdk.tobiigaze_create(url, &error_code)
+ *         if error_code > 0:
+ *             raise TrackerError(error_code)             # <<<<<<<<<<<<<<
+ * 
+ *     def __dealloc__(self):
+ */
+    __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_TrackerError); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 74; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_2 = PyInt_FromLong(__pyx_v_error_code); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 74; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_6 = NULL;
+    if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_3))) {
+      __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_3);
+      if (likely(__pyx_t_6)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+        __Pyx_INCREF(__pyx_t_6);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_3, function);
+      }
+    }
+    if (!__pyx_t_6) {
+      __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 74; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __Pyx_GOTREF(__pyx_t_1);
+    } else {
+      __pyx_t_7 = PyTuple_New(1+1); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 74; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __Pyx_GOTREF(__pyx_t_7);
+      __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_6); __pyx_t_6 = NULL;
+      __Pyx_GIVEREF(__pyx_t_2);
+      PyTuple_SET_ITEM(__pyx_t_7, 0+1, __pyx_t_2);
+      __pyx_t_2 = 0;
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_7, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 74; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __Pyx_GOTREF(__pyx_t_1);
+      __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+    }
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_Raise(__pyx_t_1, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 74; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  }
+
+  /* "gazesdk.pyx":69
+ *     cdef object event_loop
+ * 
+ *     def __cinit__(self, url):             # <<<<<<<<<<<<<<
+ *         self.event_queue = Queue.Queue()
+ *         cdef cgazesdk.tobiigaze_error_code error_code
  */
 
   /* function exit code */
@@ -1691,156 +2115,43 @@ static int __pyx_pf_7gazesdk_7Tracker___init__(struct __pyx_obj_7gazesdk_Tracker
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("gazesdk.Tracker.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_XDECREF(__pyx_t_6);
+  __Pyx_XDECREF(__pyx_t_7);
+  __Pyx_AddTraceback("gazesdk.Tracker.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "gazesdk.pyx":60
- *         self.event_queue = Queue.Queue()
+/* "gazesdk.pyx":76
+ *             raise TrackerError(error_code)
  * 
- *     def create(self, url):             # <<<<<<<<<<<<<<
- *         cdef cgazesdk.tobiigaze_error_code error_code
- *         self._tracker = cgazesdk.tobiigaze_create(url, &error_code)
- */
-
-/* Python wrapper */
-static PyObject *__pyx_pw_7gazesdk_7Tracker_3create(PyObject *__pyx_v_self, PyObject *__pyx_v_url); /*proto*/
-static PyObject *__pyx_pw_7gazesdk_7Tracker_3create(PyObject *__pyx_v_self, PyObject *__pyx_v_url) {
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("create (wrapper)", 0);
-  __pyx_r = __pyx_pf_7gazesdk_7Tracker_2create(((struct __pyx_obj_7gazesdk_Tracker *)__pyx_v_self), ((PyObject *)__pyx_v_url));
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_7gazesdk_7Tracker_2create(struct __pyx_obj_7gazesdk_Tracker *__pyx_v_self, PyObject *__pyx_v_url) {
-  tobiigaze_error_code __pyx_v_error_code;
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  char const *__pyx_t_1;
-  int __pyx_lineno = 0;
-  const char *__pyx_filename = NULL;
-  int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("create", 0);
-
-  /* "gazesdk.pyx":62
- *     def create(self, url):
- *         cdef cgazesdk.tobiigaze_error_code error_code
- *         self._tracker = cgazesdk.tobiigaze_create(url, &error_code)             # <<<<<<<<<<<<<<
- * 
- *     def destroy(self):
- */
-  __pyx_t_1 = __Pyx_PyObject_AsString(__pyx_v_url); if (unlikely((!__pyx_t_1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 62; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_v_self->_tracker = tobiigaze_create(__pyx_t_1, (&__pyx_v_error_code));
-
-  /* "gazesdk.pyx":60
- *         self.event_queue = Queue.Queue()
- * 
- *     def create(self, url):             # <<<<<<<<<<<<<<
- *         cdef cgazesdk.tobiigaze_error_code error_code
- *         self._tracker = cgazesdk.tobiigaze_create(url, &error_code)
- */
-
-  /* function exit code */
-  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
-  goto __pyx_L0;
-  __pyx_L1_error:;
-  __Pyx_AddTraceback("gazesdk.Tracker.create", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
-  __pyx_L0:;
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "gazesdk.pyx":64
- *         self._tracker = cgazesdk.tobiigaze_create(url, &error_code)
- * 
- *     def destroy(self):             # <<<<<<<<<<<<<<
- *         cgazesdk.tobiigaze_destroy(self._tracker)
- * 
- */
-
-/* Python wrapper */
-static PyObject *__pyx_pw_7gazesdk_7Tracker_5destroy(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_7gazesdk_7Tracker_5destroy(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("destroy (wrapper)", 0);
-  __pyx_r = __pyx_pf_7gazesdk_7Tracker_4destroy(((struct __pyx_obj_7gazesdk_Tracker *)__pyx_v_self));
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_7gazesdk_7Tracker_4destroy(struct __pyx_obj_7gazesdk_Tracker *__pyx_v_self) {
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("destroy", 0);
-
-  /* "gazesdk.pyx":65
- * 
- *     def destroy(self):
- *         cgazesdk.tobiigaze_destroy(self._tracker)             # <<<<<<<<<<<<<<
- * 
- *     def run_event_loop(self):
- */
-  tobiigaze_destroy(__pyx_v_self->_tracker);
-
-  /* "gazesdk.pyx":64
- *         self._tracker = cgazesdk.tobiigaze_create(url, &error_code)
- * 
- *     def destroy(self):             # <<<<<<<<<<<<<<
- *         cgazesdk.tobiigaze_destroy(self._tracker)
- * 
- */
-
-  /* function exit code */
-  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "gazesdk.pyx":67
- *         cgazesdk.tobiigaze_destroy(self._tracker)
- * 
- *     def run_event_loop(self):             # <<<<<<<<<<<<<<
- *         cdef cgazesdk.tobiigaze_error_code error_code
+ *     def __dealloc__(self):             # <<<<<<<<<<<<<<
  *         with nogil:
+ *             cgazesdk.tobiigaze_destroy(self._tracker)
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_7gazesdk_7Tracker_7run_event_loop(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_7gazesdk_7Tracker_7run_event_loop(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
-  PyObject *__pyx_r = 0;
+static void __pyx_pw_7gazesdk_7Tracker_3__dealloc__(PyObject *__pyx_v_self); /*proto*/
+static void __pyx_pw_7gazesdk_7Tracker_3__dealloc__(PyObject *__pyx_v_self) {
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("run_event_loop (wrapper)", 0);
-  __pyx_r = __pyx_pf_7gazesdk_7Tracker_6run_event_loop(((struct __pyx_obj_7gazesdk_Tracker *)__pyx_v_self));
+  __Pyx_RefNannySetupContext("__dealloc__ (wrapper)", 0);
+  __pyx_pf_7gazesdk_7Tracker_2__dealloc__(((struct __pyx_obj_7gazesdk_Tracker *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
-  return __pyx_r;
 }
 
-static PyObject *__pyx_pf_7gazesdk_7Tracker_6run_event_loop(struct __pyx_obj_7gazesdk_Tracker *__pyx_v_self) {
-  tobiigaze_error_code __pyx_v_error_code;
-  PyObject *__pyx_r = NULL;
+static void __pyx_pf_7gazesdk_7Tracker_2__dealloc__(struct __pyx_obj_7gazesdk_Tracker *__pyx_v_self) {
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("run_event_loop", 0);
+  __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "gazesdk.pyx":69
- *     def run_event_loop(self):
- *         cdef cgazesdk.tobiigaze_error_code error_code
+  /* "gazesdk.pyx":77
+ * 
+ *     def __dealloc__(self):
  *         with nogil:             # <<<<<<<<<<<<<<
- *             cgazesdk.tobiigaze_run_event_loop(self._tracker, &error_code)
+ *             cgazesdk.tobiigaze_destroy(self._tracker)
  * 
  */
   {
@@ -1850,21 +2161,21 @@ static PyObject *__pyx_pf_7gazesdk_7Tracker_6run_event_loop(struct __pyx_obj_7ga
       #endif
       /*try:*/ {
 
-        /* "gazesdk.pyx":70
- *         cdef cgazesdk.tobiigaze_error_code error_code
+        /* "gazesdk.pyx":78
+ *     def __dealloc__(self):
  *         with nogil:
- *             cgazesdk.tobiigaze_run_event_loop(self._tracker, &error_code)             # <<<<<<<<<<<<<<
+ *             cgazesdk.tobiigaze_destroy(self._tracker)             # <<<<<<<<<<<<<<
  * 
- *     def break_event_loop(self):
+ *     def run_event_loop(self):
  */
-        tobiigaze_run_event_loop(__pyx_v_self->_tracker, (&__pyx_v_error_code));
+        tobiigaze_destroy(__pyx_v_self->_tracker);
       }
 
-      /* "gazesdk.pyx":69
- *     def run_event_loop(self):
- *         cdef cgazesdk.tobiigaze_error_code error_code
+      /* "gazesdk.pyx":77
+ * 
+ *     def __dealloc__(self):
  *         with nogil:             # <<<<<<<<<<<<<<
- *             cgazesdk.tobiigaze_run_event_loop(self._tracker, &error_code)
+ *             cgazesdk.tobiigaze_destroy(self._tracker)
  * 
  */
       /*finally:*/ {
@@ -1878,27 +2189,291 @@ static PyObject *__pyx_pf_7gazesdk_7Tracker_6run_event_loop(struct __pyx_obj_7ga
       }
   }
 
-  /* "gazesdk.pyx":67
- *         cgazesdk.tobiigaze_destroy(self._tracker)
+  /* "gazesdk.pyx":76
+ *             raise TrackerError(error_code)
+ * 
+ *     def __dealloc__(self):             # <<<<<<<<<<<<<<
+ *         with nogil:
+ *             cgazesdk.tobiigaze_destroy(self._tracker)
+ */
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+}
+
+/* "gazesdk.pyx":80
+ *             cgazesdk.tobiigaze_destroy(self._tracker)
  * 
  *     def run_event_loop(self):             # <<<<<<<<<<<<<<
+ *         self.event_loop = threading.Thread(target=self.__run_event_loop)
+ *         self.event_loop.start()
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_7gazesdk_7Tracker_5run_event_loop(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_7gazesdk_7Tracker_5run_event_loop(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("run_event_loop (wrapper)", 0);
+  __pyx_r = __pyx_pf_7gazesdk_7Tracker_4run_event_loop(((struct __pyx_obj_7gazesdk_Tracker *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_7gazesdk_7Tracker_4run_event_loop(struct __pyx_obj_7gazesdk_Tracker *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("run_event_loop", 0);
+
+  /* "gazesdk.pyx":81
+ * 
+ *     def run_event_loop(self):
+ *         self.event_loop = threading.Thread(target=self.__run_event_loop)             # <<<<<<<<<<<<<<
+ *         self.event_loop.start()
+ * 
+ */
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_threading); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 81; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_Thread); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 81; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 81; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_run_event_loop); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 81; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_3);
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_target, __pyx_t_3) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 81; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_empty_tuple, __pyx_t_1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 81; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __Pyx_GIVEREF(__pyx_t_3);
+  __Pyx_GOTREF(__pyx_v_self->event_loop);
+  __Pyx_DECREF(__pyx_v_self->event_loop);
+  __pyx_v_self->event_loop = __pyx_t_3;
+  __pyx_t_3 = 0;
+
+  /* "gazesdk.pyx":82
+ *     def run_event_loop(self):
+ *         self.event_loop = threading.Thread(target=self.__run_event_loop)
+ *         self.event_loop.start()             # <<<<<<<<<<<<<<
+ * 
+ *     def __run_event_loop(self):
+ */
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->event_loop, __pyx_n_s_start); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 82; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = NULL;
+  if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_1))) {
+    __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_1);
+    if (likely(__pyx_t_2)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_1);
+      __Pyx_INCREF(__pyx_t_2);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_1, function);
+    }
+  }
+  if (__pyx_t_2) {
+    __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 82; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  } else {
+    __pyx_t_3 = __Pyx_PyObject_CallNoArg(__pyx_t_1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 82; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  }
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+
+  /* "gazesdk.pyx":80
+ *             cgazesdk.tobiigaze_destroy(self._tracker)
+ * 
+ *     def run_event_loop(self):             # <<<<<<<<<<<<<<
+ *         self.event_loop = threading.Thread(target=self.__run_event_loop)
+ *         self.event_loop.start()
+ */
+
+  /* function exit code */
+  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_AddTraceback("gazesdk.Tracker.run_event_loop", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "gazesdk.pyx":84
+ *         self.event_loop.start()
+ * 
+ *     def __run_event_loop(self):             # <<<<<<<<<<<<<<
+ *         cdef cgazesdk.tobiigaze_error_code error_code
+ *         with nogil:
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_7gazesdk_7Tracker_7__run_event_loop(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_7gazesdk_7Tracker_7__run_event_loop(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__run_event_loop (wrapper)", 0);
+  __pyx_r = __pyx_pf_7gazesdk_7Tracker_6__run_event_loop(((struct __pyx_obj_7gazesdk_Tracker *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_7gazesdk_7Tracker_6__run_event_loop(struct __pyx_obj_7gazesdk_Tracker *__pyx_v_self) {
+  tobiigaze_error_code __pyx_v_error_code;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *__pyx_t_5 = NULL;
+  PyObject *__pyx_t_6 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__run_event_loop", 0);
+
+  /* "gazesdk.pyx":86
+ *     def __run_event_loop(self):
+ *         cdef cgazesdk.tobiigaze_error_code error_code
+ *         with nogil:             # <<<<<<<<<<<<<<
+ *             cgazesdk.tobiigaze_run_event_loop(self._tracker, &error_code)
+ *         if error_code > 0:
+ */
+  {
+      #ifdef WITH_THREAD
+      PyThreadState *_save;
+      Py_UNBLOCK_THREADS
+      #endif
+      /*try:*/ {
+
+        /* "gazesdk.pyx":87
+ *         cdef cgazesdk.tobiigaze_error_code error_code
+ *         with nogil:
+ *             cgazesdk.tobiigaze_run_event_loop(self._tracker, &error_code)             # <<<<<<<<<<<<<<
+ *         if error_code > 0:
+ *             raise TrackerError(error_code)
+ */
+        tobiigaze_run_event_loop(__pyx_v_self->_tracker, (&__pyx_v_error_code));
+      }
+
+      /* "gazesdk.pyx":86
+ *     def __run_event_loop(self):
+ *         cdef cgazesdk.tobiigaze_error_code error_code
+ *         with nogil:             # <<<<<<<<<<<<<<
+ *             cgazesdk.tobiigaze_run_event_loop(self._tracker, &error_code)
+ *         if error_code > 0:
+ */
+      /*finally:*/ {
+        /*normal exit:*/{
+          #ifdef WITH_THREAD
+          Py_BLOCK_THREADS
+          #endif
+          goto __pyx_L5;
+        }
+        __pyx_L5:;
+      }
+  }
+
+  /* "gazesdk.pyx":88
+ *         with nogil:
+ *             cgazesdk.tobiigaze_run_event_loop(self._tracker, &error_code)
+ *         if error_code > 0:             # <<<<<<<<<<<<<<
+ *             raise TrackerError(error_code)
+ * 
+ */
+  __pyx_t_1 = ((__pyx_v_error_code > 0) != 0);
+  if (__pyx_t_1) {
+
+    /* "gazesdk.pyx":89
+ *             cgazesdk.tobiigaze_run_event_loop(self._tracker, &error_code)
+ *         if error_code > 0:
+ *             raise TrackerError(error_code)             # <<<<<<<<<<<<<<
+ * 
+ *     def break_event_loop(self):
+ */
+    __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_TrackerError); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 89; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_4 = PyInt_FromLong(__pyx_v_error_code); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 89; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_5 = NULL;
+    if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_3))) {
+      __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_3);
+      if (likely(__pyx_t_5)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+        __Pyx_INCREF(__pyx_t_5);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_3, function);
+      }
+    }
+    if (!__pyx_t_5) {
+      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 89; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      __Pyx_GOTREF(__pyx_t_2);
+    } else {
+      __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 89; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __Pyx_GOTREF(__pyx_t_6);
+      __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_5); __pyx_t_5 = NULL;
+      __Pyx_GIVEREF(__pyx_t_4);
+      PyTuple_SET_ITEM(__pyx_t_6, 0+1, __pyx_t_4);
+      __pyx_t_4 = 0;
+      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 89; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __Pyx_GOTREF(__pyx_t_2);
+      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    }
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_Raise(__pyx_t_2, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 89; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  }
+
+  /* "gazesdk.pyx":84
+ *         self.event_loop.start()
+ * 
+ *     def __run_event_loop(self):             # <<<<<<<<<<<<<<
  *         cdef cgazesdk.tobiigaze_error_code error_code
  *         with nogil:
  */
 
   /* function exit code */
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_XDECREF(__pyx_t_6);
+  __Pyx_AddTraceback("gazesdk.Tracker.__run_event_loop", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "gazesdk.pyx":72
- *             cgazesdk.tobiigaze_run_event_loop(self._tracker, &error_code)
+/* "gazesdk.pyx":91
+ *             raise TrackerError(error_code)
  * 
  *     def break_event_loop(self):             # <<<<<<<<<<<<<<
- *         cgazesdk.tobiigaze_break_event_loop(self._tracker)
- * 
+ *         with nogil:
+ *             cgazesdk.tobiigaze_break_event_loop(self._tracker)
  */
 
 /* Python wrapper */
@@ -1917,34 +2492,124 @@ static PyObject *__pyx_pw_7gazesdk_7Tracker_9break_event_loop(PyObject *__pyx_v_
 static PyObject *__pyx_pf_7gazesdk_7Tracker_8break_event_loop(struct __pyx_obj_7gazesdk_Tracker *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("break_event_loop", 0);
 
-  /* "gazesdk.pyx":73
+  /* "gazesdk.pyx":92
  * 
  *     def break_event_loop(self):
- *         cgazesdk.tobiigaze_break_event_loop(self._tracker)             # <<<<<<<<<<<<<<
+ *         with nogil:             # <<<<<<<<<<<<<<
+ *             cgazesdk.tobiigaze_break_event_loop(self._tracker)
+ *         if(self.event_loop):
+ */
+  {
+      #ifdef WITH_THREAD
+      PyThreadState *_save;
+      Py_UNBLOCK_THREADS
+      #endif
+      /*try:*/ {
+
+        /* "gazesdk.pyx":93
+ *     def break_event_loop(self):
+ *         with nogil:
+ *             cgazesdk.tobiigaze_break_event_loop(self._tracker)             # <<<<<<<<<<<<<<
+ *         if(self.event_loop):
+ *             self.event_loop.join()
+ */
+        tobiigaze_break_event_loop(__pyx_v_self->_tracker);
+      }
+
+      /* "gazesdk.pyx":92
+ * 
+ *     def break_event_loop(self):
+ *         with nogil:             # <<<<<<<<<<<<<<
+ *             cgazesdk.tobiigaze_break_event_loop(self._tracker)
+ *         if(self.event_loop):
+ */
+      /*finally:*/ {
+        /*normal exit:*/{
+          #ifdef WITH_THREAD
+          Py_BLOCK_THREADS
+          #endif
+          goto __pyx_L5;
+        }
+        __pyx_L5:;
+      }
+  }
+
+  /* "gazesdk.pyx":94
+ *         with nogil:
+ *             cgazesdk.tobiigaze_break_event_loop(self._tracker)
+ *         if(self.event_loop):             # <<<<<<<<<<<<<<
+ *             self.event_loop.join()
+ * 
+ */
+  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_self->event_loop); if (unlikely(__pyx_t_1 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 94; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (__pyx_t_1) {
+
+    /* "gazesdk.pyx":95
+ *             cgazesdk.tobiigaze_break_event_loop(self._tracker)
+ *         if(self.event_loop):
+ *             self.event_loop.join()             # <<<<<<<<<<<<<<
  * 
  *     def connect(self):
  */
-  tobiigaze_break_event_loop(__pyx_v_self->_tracker);
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->event_loop, __pyx_n_s_join); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 95; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_4 = NULL;
+    if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_3))) {
+      __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+      if (likely(__pyx_t_4)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+        __Pyx_INCREF(__pyx_t_4);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_3, function);
+      }
+    }
+    if (__pyx_t_4) {
+      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 95; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    } else {
+      __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 95; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    }
+    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    goto __pyx_L6;
+  }
+  __pyx_L6:;
 
-  /* "gazesdk.pyx":72
- *             cgazesdk.tobiigaze_run_event_loop(self._tracker, &error_code)
+  /* "gazesdk.pyx":91
+ *             raise TrackerError(error_code)
  * 
  *     def break_event_loop(self):             # <<<<<<<<<<<<<<
- *         cgazesdk.tobiigaze_break_event_loop(self._tracker)
- * 
+ *         with nogil:
+ *             cgazesdk.tobiigaze_break_event_loop(self._tracker)
  */
 
   /* function exit code */
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_AddTraceback("gazesdk.Tracker.break_event_loop", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "gazesdk.pyx":75
- *         cgazesdk.tobiigaze_break_event_loop(self._tracker)
+/* "gazesdk.pyx":97
+ *             self.event_loop.join()
  * 
  *     def connect(self):             # <<<<<<<<<<<<<<
  *         cdef cgazesdk.tobiigaze_error_code error_code
@@ -1968,14 +2633,23 @@ static PyObject *__pyx_pf_7gazesdk_7Tracker_10connect(struct __pyx_obj_7gazesdk_
   tobiigaze_error_code __pyx_v_error_code;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *__pyx_t_5 = NULL;
+  PyObject *__pyx_t_6 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("connect", 0);
 
-  /* "gazesdk.pyx":77
+  /* "gazesdk.pyx":99
  *     def connect(self):
  *         cdef cgazesdk.tobiigaze_error_code error_code
  *         with nogil:             # <<<<<<<<<<<<<<
  *             cgazesdk.tobiigaze_connect(self._tracker, &error_code)
- * 
+ *         if error_code > 0:
  */
   {
       #ifdef WITH_THREAD
@@ -1984,22 +2658,22 @@ static PyObject *__pyx_pf_7gazesdk_7Tracker_10connect(struct __pyx_obj_7gazesdk_
       #endif
       /*try:*/ {
 
-        /* "gazesdk.pyx":78
+        /* "gazesdk.pyx":100
  *         cdef cgazesdk.tobiigaze_error_code error_code
  *         with nogil:
  *             cgazesdk.tobiigaze_connect(self._tracker, &error_code)             # <<<<<<<<<<<<<<
- * 
- *     def disconnect(self):
+ *         if error_code > 0:
+ *             raise TrackerError(error_code)
  */
         tobiigaze_connect(__pyx_v_self->_tracker, (&__pyx_v_error_code));
       }
 
-      /* "gazesdk.pyx":77
+      /* "gazesdk.pyx":99
  *     def connect(self):
  *         cdef cgazesdk.tobiigaze_error_code error_code
  *         with nogil:             # <<<<<<<<<<<<<<
  *             cgazesdk.tobiigaze_connect(self._tracker, &error_code)
- * 
+ *         if error_code > 0:
  */
       /*finally:*/ {
         /*normal exit:*/{
@@ -2012,8 +2686,60 @@ static PyObject *__pyx_pf_7gazesdk_7Tracker_10connect(struct __pyx_obj_7gazesdk_
       }
   }
 
-  /* "gazesdk.pyx":75
- *         cgazesdk.tobiigaze_break_event_loop(self._tracker)
+  /* "gazesdk.pyx":101
+ *         with nogil:
+ *             cgazesdk.tobiigaze_connect(self._tracker, &error_code)
+ *         if error_code > 0:             # <<<<<<<<<<<<<<
+ *             raise TrackerError(error_code)
+ * 
+ */
+  __pyx_t_1 = ((__pyx_v_error_code > 0) != 0);
+  if (__pyx_t_1) {
+
+    /* "gazesdk.pyx":102
+ *             cgazesdk.tobiigaze_connect(self._tracker, &error_code)
+ *         if error_code > 0:
+ *             raise TrackerError(error_code)             # <<<<<<<<<<<<<<
+ * 
+ *     def disconnect(self):
+ */
+    __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_TrackerError); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 102; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_4 = PyInt_FromLong(__pyx_v_error_code); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 102; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_5 = NULL;
+    if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_3))) {
+      __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_3);
+      if (likely(__pyx_t_5)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+        __Pyx_INCREF(__pyx_t_5);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_3, function);
+      }
+    }
+    if (!__pyx_t_5) {
+      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 102; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      __Pyx_GOTREF(__pyx_t_2);
+    } else {
+      __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 102; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __Pyx_GOTREF(__pyx_t_6);
+      __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_5); __pyx_t_5 = NULL;
+      __Pyx_GIVEREF(__pyx_t_4);
+      PyTuple_SET_ITEM(__pyx_t_6, 0+1, __pyx_t_4);
+      __pyx_t_4 = 0;
+      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 102; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __Pyx_GOTREF(__pyx_t_2);
+      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    }
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_Raise(__pyx_t_2, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 102; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  }
+
+  /* "gazesdk.pyx":97
+ *             self.event_loop.join()
  * 
  *     def connect(self):             # <<<<<<<<<<<<<<
  *         cdef cgazesdk.tobiigaze_error_code error_code
@@ -2022,17 +2748,27 @@ static PyObject *__pyx_pf_7gazesdk_7Tracker_10connect(struct __pyx_obj_7gazesdk_
 
   /* function exit code */
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_XDECREF(__pyx_t_6);
+  __Pyx_AddTraceback("gazesdk.Tracker.connect", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "gazesdk.pyx":80
- *             cgazesdk.tobiigaze_connect(self._tracker, &error_code)
+/* "gazesdk.pyx":104
+ *             raise TrackerError(error_code)
  * 
  *     def disconnect(self):             # <<<<<<<<<<<<<<
- *         cgazesdk.tobiigaze_disconnect(self._tracker)
- * 
+ *         with nogil:
+ *             cgazesdk.tobiigaze_disconnect(self._tracker)
  */
 
 /* Python wrapper */
@@ -2053,21 +2789,54 @@ static PyObject *__pyx_pf_7gazesdk_7Tracker_12disconnect(struct __pyx_obj_7gazes
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("disconnect", 0);
 
-  /* "gazesdk.pyx":81
+  /* "gazesdk.pyx":105
  * 
  *     def disconnect(self):
- *         cgazesdk.tobiigaze_disconnect(self._tracker)             # <<<<<<<<<<<<<<
+ *         with nogil:             # <<<<<<<<<<<<<<
+ *             cgazesdk.tobiigaze_disconnect(self._tracker)
+ * 
+ */
+  {
+      #ifdef WITH_THREAD
+      PyThreadState *_save;
+      Py_UNBLOCK_THREADS
+      #endif
+      /*try:*/ {
+
+        /* "gazesdk.pyx":106
+ *     def disconnect(self):
+ *         with nogil:
+ *             cgazesdk.tobiigaze_disconnect(self._tracker)             # <<<<<<<<<<<<<<
  * 
  *     def is_connected(self):
  */
-  tobiigaze_disconnect(__pyx_v_self->_tracker);
+        tobiigaze_disconnect(__pyx_v_self->_tracker);
+      }
 
-  /* "gazesdk.pyx":80
- *             cgazesdk.tobiigaze_connect(self._tracker, &error_code)
+      /* "gazesdk.pyx":105
+ * 
+ *     def disconnect(self):
+ *         with nogil:             # <<<<<<<<<<<<<<
+ *             cgazesdk.tobiigaze_disconnect(self._tracker)
+ * 
+ */
+      /*finally:*/ {
+        /*normal exit:*/{
+          #ifdef WITH_THREAD
+          Py_BLOCK_THREADS
+          #endif
+          goto __pyx_L5;
+        }
+        __pyx_L5:;
+      }
+  }
+
+  /* "gazesdk.pyx":104
+ *             raise TrackerError(error_code)
  * 
  *     def disconnect(self):             # <<<<<<<<<<<<<<
- *         cgazesdk.tobiigaze_disconnect(self._tracker)
- * 
+ *         with nogil:
+ *             cgazesdk.tobiigaze_disconnect(self._tracker)
  */
 
   /* function exit code */
@@ -2077,12 +2846,12 @@ static PyObject *__pyx_pf_7gazesdk_7Tracker_12disconnect(struct __pyx_obj_7gazes
   return __pyx_r;
 }
 
-/* "gazesdk.pyx":83
- *         cgazesdk.tobiigaze_disconnect(self._tracker)
+/* "gazesdk.pyx":108
+ *             cgazesdk.tobiigaze_disconnect(self._tracker)
  * 
  *     def is_connected(self):             # <<<<<<<<<<<<<<
- *         is_connected = cgazesdk.tobiigaze_is_connected(self._tracker)
- *         return bool(is_connected)
+ *         with nogil:
+ *             is_connected = cgazesdk.tobiigaze_is_connected(self._tracker)
  */
 
 /* Python wrapper */
@@ -2109,39 +2878,72 @@ static PyObject *__pyx_pf_7gazesdk_7Tracker_14is_connected(struct __pyx_obj_7gaz
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("is_connected", 0);
 
-  /* "gazesdk.pyx":84
+  /* "gazesdk.pyx":109
  * 
  *     def is_connected(self):
- *         is_connected = cgazesdk.tobiigaze_is_connected(self._tracker)             # <<<<<<<<<<<<<<
+ *         with nogil:             # <<<<<<<<<<<<<<
+ *             is_connected = cgazesdk.tobiigaze_is_connected(self._tracker)
+ *         return bool(is_connected)
+ */
+  {
+      #ifdef WITH_THREAD
+      PyThreadState *_save;
+      Py_UNBLOCK_THREADS
+      #endif
+      /*try:*/ {
+
+        /* "gazesdk.pyx":110
+ *     def is_connected(self):
+ *         with nogil:
+ *             is_connected = cgazesdk.tobiigaze_is_connected(self._tracker)             # <<<<<<<<<<<<<<
  *         return bool(is_connected)
  * 
  */
-  __pyx_v_is_connected = tobiigaze_is_connected(__pyx_v_self->_tracker);
+        __pyx_v_is_connected = tobiigaze_is_connected(__pyx_v_self->_tracker);
+      }
 
-  /* "gazesdk.pyx":85
+      /* "gazesdk.pyx":109
+ * 
  *     def is_connected(self):
- *         is_connected = cgazesdk.tobiigaze_is_connected(self._tracker)
+ *         with nogil:             # <<<<<<<<<<<<<<
+ *             is_connected = cgazesdk.tobiigaze_is_connected(self._tracker)
+ *         return bool(is_connected)
+ */
+      /*finally:*/ {
+        /*normal exit:*/{
+          #ifdef WITH_THREAD
+          Py_BLOCK_THREADS
+          #endif
+          goto __pyx_L5;
+        }
+        __pyx_L5:;
+      }
+  }
+
+  /* "gazesdk.pyx":111
+ *         with nogil:
+ *             is_connected = cgazesdk.tobiigaze_is_connected(self._tracker)
  *         return bool(is_connected)             # <<<<<<<<<<<<<<
  * 
  *     def start_tracking(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_is_connected); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 85; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_is_connected); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 111; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_2 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 85; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_2 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 111; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyBool_FromLong((!(!__pyx_t_2))); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 85; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyBool_FromLong((!(!__pyx_t_2))); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 111; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "gazesdk.pyx":83
- *         cgazesdk.tobiigaze_disconnect(self._tracker)
+  /* "gazesdk.pyx":108
+ *             cgazesdk.tobiigaze_disconnect(self._tracker)
  * 
  *     def is_connected(self):             # <<<<<<<<<<<<<<
- *         is_connected = cgazesdk.tobiigaze_is_connected(self._tracker)
- *         return bool(is_connected)
+ *         with nogil:
+ *             is_connected = cgazesdk.tobiigaze_is_connected(self._tracker)
  */
 
   /* function exit code */
@@ -2155,12 +2957,12 @@ static PyObject *__pyx_pf_7gazesdk_7Tracker_14is_connected(struct __pyx_obj_7gaz
   return __pyx_r;
 }
 
-/* "gazesdk.pyx":87
+/* "gazesdk.pyx":113
  *         return bool(is_connected)
  * 
  *     def start_tracking(self):             # <<<<<<<<<<<<<<
  *         cdef cgazesdk.tobiigaze_error_code error_code
- *         cgazesdk.tobiigaze_start_tracking(self._tracker, gaze_callback, &error_code, <void*> self.event_queue)
+ *         with nogil:
  */
 
 /* Python wrapper */
@@ -2180,38 +2982,142 @@ static PyObject *__pyx_pf_7gazesdk_7Tracker_16start_tracking(struct __pyx_obj_7g
   tobiigaze_error_code __pyx_v_error_code;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *__pyx_t_5 = NULL;
+  PyObject *__pyx_t_6 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("start_tracking", 0);
 
-  /* "gazesdk.pyx":89
+  /* "gazesdk.pyx":115
  *     def start_tracking(self):
  *         cdef cgazesdk.tobiigaze_error_code error_code
- *         cgazesdk.tobiigaze_start_tracking(self._tracker, gaze_callback, &error_code, <void*> self.event_queue)             # <<<<<<<<<<<<<<
+ *         with nogil:             # <<<<<<<<<<<<<<
+ *             cgazesdk.tobiigaze_start_tracking(self._tracker, gaze_callback, &error_code, <void*> self.event_queue)
+ *         if error_code > 0:
+ */
+  {
+      #ifdef WITH_THREAD
+      PyThreadState *_save;
+      Py_UNBLOCK_THREADS
+      #endif
+      /*try:*/ {
+
+        /* "gazesdk.pyx":116
+ *         cdef cgazesdk.tobiigaze_error_code error_code
+ *         with nogil:
+ *             cgazesdk.tobiigaze_start_tracking(self._tracker, gaze_callback, &error_code, <void*> self.event_queue)             # <<<<<<<<<<<<<<
+ *         if error_code > 0:
+ *             raise TrackerError(error_code)
+ */
+        tobiigaze_start_tracking(__pyx_v_self->_tracker, __pyx_f_7gazesdk_gaze_callback, (&__pyx_v_error_code), ((void *)__pyx_v_self->event_queue));
+      }
+
+      /* "gazesdk.pyx":115
+ *     def start_tracking(self):
+ *         cdef cgazesdk.tobiigaze_error_code error_code
+ *         with nogil:             # <<<<<<<<<<<<<<
+ *             cgazesdk.tobiigaze_start_tracking(self._tracker, gaze_callback, &error_code, <void*> self.event_queue)
+ *         if error_code > 0:
+ */
+      /*finally:*/ {
+        /*normal exit:*/{
+          #ifdef WITH_THREAD
+          Py_BLOCK_THREADS
+          #endif
+          goto __pyx_L5;
+        }
+        __pyx_L5:;
+      }
+  }
+
+  /* "gazesdk.pyx":117
+ *         with nogil:
+ *             cgazesdk.tobiigaze_start_tracking(self._tracker, gaze_callback, &error_code, <void*> self.event_queue)
+ *         if error_code > 0:             # <<<<<<<<<<<<<<
+ *             raise TrackerError(error_code)
+ * 
+ */
+  __pyx_t_1 = ((__pyx_v_error_code > 0) != 0);
+  if (__pyx_t_1) {
+
+    /* "gazesdk.pyx":118
+ *             cgazesdk.tobiigaze_start_tracking(self._tracker, gaze_callback, &error_code, <void*> self.event_queue)
+ *         if error_code > 0:
+ *             raise TrackerError(error_code)             # <<<<<<<<<<<<<<
  * 
  *     def stop_tracking(self):
  */
-  tobiigaze_start_tracking(__pyx_v_self->_tracker, __pyx_f_7gazesdk_gaze_callback, (&__pyx_v_error_code), ((void *)__pyx_v_self->event_queue));
+    __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_TrackerError); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 118; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_4 = PyInt_FromLong(__pyx_v_error_code); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 118; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_5 = NULL;
+    if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_3))) {
+      __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_3);
+      if (likely(__pyx_t_5)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+        __Pyx_INCREF(__pyx_t_5);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_3, function);
+      }
+    }
+    if (!__pyx_t_5) {
+      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 118; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      __Pyx_GOTREF(__pyx_t_2);
+    } else {
+      __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 118; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __Pyx_GOTREF(__pyx_t_6);
+      __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_5); __pyx_t_5 = NULL;
+      __Pyx_GIVEREF(__pyx_t_4);
+      PyTuple_SET_ITEM(__pyx_t_6, 0+1, __pyx_t_4);
+      __pyx_t_4 = 0;
+      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 118; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __Pyx_GOTREF(__pyx_t_2);
+      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    }
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_Raise(__pyx_t_2, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 118; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  }
 
-  /* "gazesdk.pyx":87
+  /* "gazesdk.pyx":113
  *         return bool(is_connected)
  * 
  *     def start_tracking(self):             # <<<<<<<<<<<<<<
  *         cdef cgazesdk.tobiigaze_error_code error_code
- *         cgazesdk.tobiigaze_start_tracking(self._tracker, gaze_callback, &error_code, <void*> self.event_queue)
+ *         with nogil:
  */
 
   /* function exit code */
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_XDECREF(__pyx_t_6);
+  __Pyx_AddTraceback("gazesdk.Tracker.start_tracking", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "gazesdk.pyx":91
- *         cgazesdk.tobiigaze_start_tracking(self._tracker, gaze_callback, &error_code, <void*> self.event_queue)
+/* "gazesdk.pyx":120
+ *             raise TrackerError(error_code)
  * 
  *     def stop_tracking(self):             # <<<<<<<<<<<<<<
  *         cdef cgazesdk.tobiigaze_error_code error_code
- *         cgazesdk.tobiigaze_stop_tracking(self._tracker, &error_code)
+ *         with nogil:
  */
 
 /* Python wrapper */
@@ -2231,38 +3137,142 @@ static PyObject *__pyx_pf_7gazesdk_7Tracker_18stop_tracking(struct __pyx_obj_7ga
   tobiigaze_error_code __pyx_v_error_code;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *__pyx_t_5 = NULL;
+  PyObject *__pyx_t_6 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("stop_tracking", 0);
 
-  /* "gazesdk.pyx":93
+  /* "gazesdk.pyx":122
  *     def stop_tracking(self):
  *         cdef cgazesdk.tobiigaze_error_code error_code
- *         cgazesdk.tobiigaze_stop_tracking(self._tracker, &error_code)             # <<<<<<<<<<<<<<
+ *         with nogil:             # <<<<<<<<<<<<<<
+ *             cgazesdk.tobiigaze_stop_tracking(self._tracker, &error_code)
+ *         if error_code > 0:
+ */
+  {
+      #ifdef WITH_THREAD
+      PyThreadState *_save;
+      Py_UNBLOCK_THREADS
+      #endif
+      /*try:*/ {
+
+        /* "gazesdk.pyx":123
+ *         cdef cgazesdk.tobiigaze_error_code error_code
+ *         with nogil:
+ *             cgazesdk.tobiigaze_stop_tracking(self._tracker, &error_code)             # <<<<<<<<<<<<<<
+ *         if error_code > 0:
+ *             raise TrackerError(error_code)
+ */
+        tobiigaze_stop_tracking(__pyx_v_self->_tracker, (&__pyx_v_error_code));
+      }
+
+      /* "gazesdk.pyx":122
+ *     def stop_tracking(self):
+ *         cdef cgazesdk.tobiigaze_error_code error_code
+ *         with nogil:             # <<<<<<<<<<<<<<
+ *             cgazesdk.tobiigaze_stop_tracking(self._tracker, &error_code)
+ *         if error_code > 0:
+ */
+      /*finally:*/ {
+        /*normal exit:*/{
+          #ifdef WITH_THREAD
+          Py_BLOCK_THREADS
+          #endif
+          goto __pyx_L5;
+        }
+        __pyx_L5:;
+      }
+  }
+
+  /* "gazesdk.pyx":124
+ *         with nogil:
+ *             cgazesdk.tobiigaze_stop_tracking(self._tracker, &error_code)
+ *         if error_code > 0:             # <<<<<<<<<<<<<<
+ *             raise TrackerError(error_code)
+ * 
+ */
+  __pyx_t_1 = ((__pyx_v_error_code > 0) != 0);
+  if (__pyx_t_1) {
+
+    /* "gazesdk.pyx":125
+ *             cgazesdk.tobiigaze_stop_tracking(self._tracker, &error_code)
+ *         if error_code > 0:
+ *             raise TrackerError(error_code)             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  tobiigaze_stop_tracking(__pyx_v_self->_tracker, (&__pyx_v_error_code));
+    __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_TrackerError); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 125; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_4 = PyInt_FromLong(__pyx_v_error_code); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 125; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_5 = NULL;
+    if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_3))) {
+      __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_3);
+      if (likely(__pyx_t_5)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+        __Pyx_INCREF(__pyx_t_5);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_3, function);
+      }
+    }
+    if (!__pyx_t_5) {
+      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 125; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      __Pyx_GOTREF(__pyx_t_2);
+    } else {
+      __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 125; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __Pyx_GOTREF(__pyx_t_6);
+      __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_5); __pyx_t_5 = NULL;
+      __Pyx_GIVEREF(__pyx_t_4);
+      PyTuple_SET_ITEM(__pyx_t_6, 0+1, __pyx_t_4);
+      __pyx_t_4 = 0;
+      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 125; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __Pyx_GOTREF(__pyx_t_2);
+      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    }
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_Raise(__pyx_t_2, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 125; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  }
 
-  /* "gazesdk.pyx":91
- *         cgazesdk.tobiigaze_start_tracking(self._tracker, gaze_callback, &error_code, <void*> self.event_queue)
+  /* "gazesdk.pyx":120
+ *             raise TrackerError(error_code)
  * 
  *     def stop_tracking(self):             # <<<<<<<<<<<<<<
  *         cdef cgazesdk.tobiigaze_error_code error_code
- *         cgazesdk.tobiigaze_stop_tracking(self._tracker, &error_code)
+ *         with nogil:
  */
 
   /* function exit code */
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_XDECREF(__pyx_t_6);
+  __Pyx_AddTraceback("gazesdk.Tracker.stop_tracking", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "gazesdk.pyx":55
+/* "gazesdk.pyx":66
  * 
  *     cdef cgazesdk.tobiigaze_eye_tracker* _tracker
  *     cdef public object event_queue             # <<<<<<<<<<<<<<
+ *     cdef object event_loop
  * 
- *     def __init__(self):
  */
 
 /* Python wrapper */
@@ -2348,6 +3358,188 @@ static int __pyx_pf_7gazesdk_7Tracker_11event_queue_4__del__(struct __pyx_obj_7g
 
   /* function exit code */
   __pyx_r = 0;
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "gazesdk.pyx":130
+ * class TrackerError(Exception):
+ * 
+ *     def __init__(self, error_code):             # <<<<<<<<<<<<<<
+ *         self.error_code = error_code
+ *         message = error_codes[error_code]
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_7gazesdk_12TrackerError_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_7gazesdk_12TrackerError_1__init__ = {"__init__", (PyCFunction)__pyx_pw_7gazesdk_12TrackerError_1__init__, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_7gazesdk_12TrackerError_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  PyObject *__pyx_v_self = 0;
+  PyObject *__pyx_v_error_code = 0;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__init__ (wrapper)", 0);
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_self,&__pyx_n_s_error_code,0};
+    PyObject* values[2] = {0,0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_self)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+        case  1:
+        if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_error_code)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+    }
+    __pyx_v_self = values[0];
+    __pyx_v_error_code = values[1];
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("gazesdk.TrackerError.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_7gazesdk_12TrackerError___init__(__pyx_self, __pyx_v_self, __pyx_v_error_code);
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_7gazesdk_12TrackerError___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_error_code) {
+  PyObject *__pyx_v_message = NULL;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__init__", 0);
+
+  /* "gazesdk.pyx":131
+ * 
+ *     def __init__(self, error_code):
+ *         self.error_code = error_code             # <<<<<<<<<<<<<<
+ *         message = error_codes[error_code]
+ *         super(TrackerError, self).__init__(message)
+ */
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_error_code, __pyx_v_error_code) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 131; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+
+  /* "gazesdk.pyx":132
+ *     def __init__(self, error_code):
+ *         self.error_code = error_code
+ *         message = error_codes[error_code]             # <<<<<<<<<<<<<<
+ *         super(TrackerError, self).__init__(message)
+ * 
+ */
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_error_codes); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 132; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = PyObject_GetItem(__pyx_t_1, __pyx_v_error_code); if (unlikely(__pyx_t_2 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 132; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_v_message = __pyx_t_2;
+  __pyx_t_2 = 0;
+
+  /* "gazesdk.pyx":133
+ *         self.error_code = error_code
+ *         message = error_codes[error_code]
+ *         super(TrackerError, self).__init__(message)             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_TrackerError); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 133; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 133; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_GIVEREF(__pyx_t_1);
+  PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
+  __Pyx_INCREF(__pyx_v_self);
+  __Pyx_GIVEREF(__pyx_v_self);
+  PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_v_self);
+  __pyx_t_1 = 0;
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_super, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 133; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_init); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 133; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = NULL;
+  if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_1 = PyMethod_GET_SELF(__pyx_t_3);
+    if (likely(__pyx_t_1)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+      __Pyx_INCREF(__pyx_t_1);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_3, function);
+    }
+  }
+  if (!__pyx_t_1) {
+    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_v_message); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 133; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_GOTREF(__pyx_t_2);
+  } else {
+    __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 133; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_GIVEREF(__pyx_t_1); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_1); __pyx_t_1 = NULL;
+    __Pyx_INCREF(__pyx_v_message);
+    __Pyx_GIVEREF(__pyx_v_message);
+    PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_message);
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 133; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  }
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "gazesdk.pyx":130
+ * class TrackerError(Exception):
+ * 
+ *     def __init__(self, error_code):             # <<<<<<<<<<<<<<
+ *         self.error_code = error_code
+ *         message = error_codes[error_code]
+ */
+
+  /* function exit code */
+  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_AddTraceback("gazesdk.TrackerError.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XDECREF(__pyx_v_message);
+  __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
@@ -2638,7 +3830,7 @@ static PyTypeObject __pyx_type_7gazesdk_GazeData = {
   #endif
 };
 
-static PyObject *__pyx_tp_new_7gazesdk_Tracker(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+static PyObject *__pyx_tp_new_7gazesdk_Tracker(PyTypeObject *t, PyObject *a, PyObject *k) {
   struct __pyx_obj_7gazesdk_Tracker *p;
   PyObject *o;
   if (likely((t->tp_flags & Py_TPFLAGS_IS_ABSTRACT) == 0)) {
@@ -2649,6 +3841,10 @@ static PyObject *__pyx_tp_new_7gazesdk_Tracker(PyTypeObject *t, CYTHON_UNUSED Py
   if (unlikely(!o)) return 0;
   p = ((struct __pyx_obj_7gazesdk_Tracker *)o);
   p->event_queue = Py_None; Py_INCREF(Py_None);
+  p->event_loop = Py_None; Py_INCREF(Py_None);
+  if (unlikely(__pyx_pw_7gazesdk_7Tracker_1__cinit__(o, a, k) < 0)) {
+    Py_DECREF(o); o = 0;
+  }
   return o;
 }
 
@@ -2660,7 +3856,16 @@ static void __pyx_tp_dealloc_7gazesdk_Tracker(PyObject *o) {
   }
   #endif
   PyObject_GC_UnTrack(o);
+  {
+    PyObject *etype, *eval, *etb;
+    PyErr_Fetch(&etype, &eval, &etb);
+    ++Py_REFCNT(o);
+    __pyx_pw_7gazesdk_7Tracker_3__dealloc__(o);
+    --Py_REFCNT(o);
+    PyErr_Restore(etype, eval, etb);
+  }
   Py_CLEAR(p->event_queue);
+  Py_CLEAR(p->event_loop);
   (*Py_TYPE(o)->tp_free)(o);
 }
 
@@ -2670,6 +3875,9 @@ static int __pyx_tp_traverse_7gazesdk_Tracker(PyObject *o, visitproc v, void *a)
   if (p->event_queue) {
     e = (*v)(p->event_queue, a); if (e) return e;
   }
+  if (p->event_loop) {
+    e = (*v)(p->event_loop, a); if (e) return e;
+  }
   return 0;
 }
 
@@ -2678,6 +3886,9 @@ static int __pyx_tp_clear_7gazesdk_Tracker(PyObject *o) {
   struct __pyx_obj_7gazesdk_Tracker *p = (struct __pyx_obj_7gazesdk_Tracker *)o;
   tmp = ((PyObject*)p->event_queue);
   p->event_queue = Py_None; Py_INCREF(Py_None);
+  Py_XDECREF(tmp);
+  tmp = ((PyObject*)p->event_loop);
+  p->event_loop = Py_None; Py_INCREF(Py_None);
   Py_XDECREF(tmp);
   return 0;
 }
@@ -2696,9 +3907,8 @@ static int __pyx_setprop_7gazesdk_7Tracker_event_queue(PyObject *o, PyObject *v,
 }
 
 static PyMethodDef __pyx_methods_7gazesdk_Tracker[] = {
-  {"create", (PyCFunction)__pyx_pw_7gazesdk_7Tracker_3create, METH_O, 0},
-  {"destroy", (PyCFunction)__pyx_pw_7gazesdk_7Tracker_5destroy, METH_NOARGS, 0},
-  {"run_event_loop", (PyCFunction)__pyx_pw_7gazesdk_7Tracker_7run_event_loop, METH_NOARGS, 0},
+  {"run_event_loop", (PyCFunction)__pyx_pw_7gazesdk_7Tracker_5run_event_loop, METH_NOARGS, 0},
+  {"__run_event_loop", (PyCFunction)__pyx_pw_7gazesdk_7Tracker_7__run_event_loop, METH_NOARGS, 0},
   {"break_event_loop", (PyCFunction)__pyx_pw_7gazesdk_7Tracker_9break_event_loop, METH_NOARGS, 0},
   {"connect", (PyCFunction)__pyx_pw_7gazesdk_7Tracker_11connect, METH_NOARGS, 0},
   {"disconnect", (PyCFunction)__pyx_pw_7gazesdk_7Tracker_13disconnect, METH_NOARGS, 0},
@@ -2753,7 +3963,7 @@ static PyTypeObject __pyx_type_7gazesdk_Tracker = {
   0, /*tp_descr_get*/
   0, /*tp_descr_set*/
   0, /*tp_dictoffset*/
-  __pyx_pw_7gazesdk_7Tracker_1__init__, /*tp_init*/
+  0, /*tp_init*/
   0, /*tp_alloc*/
   __pyx_tp_new_7gazesdk_Tracker, /*tp_new*/
   0, /*tp_free*/
@@ -2794,48 +4004,119 @@ static struct PyModuleDef __pyx_moduledef = {
 
 static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_C_Users_luka_Desktop_gazesdk_gaz, __pyx_k_C_Users_luka_Desktop_gazesdk_gaz, sizeof(__pyx_k_C_Users_luka_Desktop_gazesdk_gaz), 0, 0, 1, 0},
+  {&__pyx_n_s_Exception, __pyx_k_Exception, sizeof(__pyx_k_Exception), 0, 0, 1, 1},
   {&__pyx_n_s_Queue, __pyx_k_Queue, sizeof(__pyx_k_Queue), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_ERROR_ALREADY_CONNECTE, __pyx_k_TOBIIGAZE_ERROR_ALREADY_CONNECTE, sizeof(__pyx_k_TOBIIGAZE_ERROR_ALREADY_CONNECTE), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_ERROR_BUFFER_TOO_SMALL, __pyx_k_TOBIIGAZE_ERROR_BUFFER_TOO_SMALL, sizeof(__pyx_k_TOBIIGAZE_ERROR_BUFFER_TOO_SMALL), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_ERROR_DEVICE_COMMUNICA, __pyx_k_TOBIIGAZE_ERROR_DEVICE_COMMUNICA, sizeof(__pyx_k_TOBIIGAZE_ERROR_DEVICE_COMMUNICA), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_ERROR_ENDPOINT_CONNECT, __pyx_k_TOBIIGAZE_ERROR_ENDPOINT_CONNECT, sizeof(__pyx_k_TOBIIGAZE_ERROR_ENDPOINT_CONNECT), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_ERROR_ENDPOINT_NAME_LO, __pyx_k_TOBIIGAZE_ERROR_ENDPOINT_NAME_LO, sizeof(__pyx_k_TOBIIGAZE_ERROR_ENDPOINT_NAME_LO), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_ERROR_INVALID_OPERATIO, __pyx_k_TOBIIGAZE_ERROR_INVALID_OPERATIO, sizeof(__pyx_k_TOBIIGAZE_ERROR_INVALID_OPERATIO), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_ERROR_INVALID_PARAMETE, __pyx_k_TOBIIGAZE_ERROR_INVALID_PARAMETE, sizeof(__pyx_k_TOBIIGAZE_ERROR_INVALID_PARAMETE), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_ERROR_INVALID_URL, __pyx_k_TOBIIGAZE_ERROR_INVALID_URL, sizeof(__pyx_k_TOBIIGAZE_ERROR_INVALID_URL), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_ERROR_NOT_CONNECTED, __pyx_k_TOBIIGAZE_ERROR_NOT_CONNECTED, sizeof(__pyx_k_TOBIIGAZE_ERROR_NOT_CONNECTED), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_ERROR_OPERATION_ABORTE, __pyx_k_TOBIIGAZE_ERROR_OPERATION_ABORTE, sizeof(__pyx_k_TOBIIGAZE_ERROR_OPERATION_ABORTE), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_ERROR_OUT_OF_MEMORY, __pyx_k_TOBIIGAZE_ERROR_OUT_OF_MEMORY, sizeof(__pyx_k_TOBIIGAZE_ERROR_OUT_OF_MEMORY), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_ERROR_PROTOCOL_DECODIN, __pyx_k_TOBIIGAZE_ERROR_PROTOCOL_DECODIN, sizeof(__pyx_k_TOBIIGAZE_ERROR_PROTOCOL_DECODIN), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_ERROR_PROTOCOL_VERSION, __pyx_k_TOBIIGAZE_ERROR_PROTOCOL_VERSION, sizeof(__pyx_k_TOBIIGAZE_ERROR_PROTOCOL_VERSION), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_ERROR_SUCCESS, __pyx_k_TOBIIGAZE_ERROR_SUCCESS, sizeof(__pyx_k_TOBIIGAZE_ERROR_SUCCESS), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_ERROR_TIMEOUT, __pyx_k_TOBIIGAZE_ERROR_TIMEOUT, sizeof(__pyx_k_TOBIIGAZE_ERROR_TIMEOUT), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_ERROR_TIMESYNC_COMMUNI, __pyx_k_TOBIIGAZE_ERROR_TIMESYNC_COMMUNI, sizeof(__pyx_k_TOBIIGAZE_ERROR_TIMESYNC_COMMUNI), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_ERROR_UNKNOWN, __pyx_k_TOBIIGAZE_ERROR_UNKNOWN, sizeof(__pyx_k_TOBIIGAZE_ERROR_UNKNOWN), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_FW_ERROR_EXTENSION_REQ, __pyx_k_TOBIIGAZE_FW_ERROR_EXTENSION_REQ, sizeof(__pyx_k_TOBIIGAZE_FW_ERROR_EXTENSION_REQ), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_FW_ERROR_INTERNAL_ERRO, __pyx_k_TOBIIGAZE_FW_ERROR_INTERNAL_ERRO, sizeof(__pyx_k_TOBIIGAZE_FW_ERROR_INTERNAL_ERRO), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_FW_ERROR_INVALID_PARAM, __pyx_k_TOBIIGAZE_FW_ERROR_INVALID_PARAM, sizeof(__pyx_k_TOBIIGAZE_FW_ERROR_INVALID_PARAM), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_FW_ERROR_INVALID_PAYLO, __pyx_k_TOBIIGAZE_FW_ERROR_INVALID_PAYLO, sizeof(__pyx_k_TOBIIGAZE_FW_ERROR_INVALID_PAYLO), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_FW_ERROR_OPERATION_ABO, __pyx_k_TOBIIGAZE_FW_ERROR_OPERATION_ABO, sizeof(__pyx_k_TOBIIGAZE_FW_ERROR_OPERATION_ABO), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_FW_ERROR_OPERATION_FAI, __pyx_k_TOBIIGAZE_FW_ERROR_OPERATION_FAI, sizeof(__pyx_k_TOBIIGAZE_FW_ERROR_OPERATION_FAI), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_FW_ERROR_STATE_ERROR, __pyx_k_TOBIIGAZE_FW_ERROR_STATE_ERROR, sizeof(__pyx_k_TOBIIGAZE_FW_ERROR_STATE_ERROR), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_FW_ERROR_UNAUTHORIZED, __pyx_k_TOBIIGAZE_FW_ERROR_UNAUTHORIZED, sizeof(__pyx_k_TOBIIGAZE_FW_ERROR_UNAUTHORIZED), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_FW_ERROR_UNKNOWN_ID, __pyx_k_TOBIIGAZE_FW_ERROR_UNKNOWN_ID, sizeof(__pyx_k_TOBIIGAZE_FW_ERROR_UNKNOWN_ID), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_FW_ERROR_UNKNOWN_OPERA, __pyx_k_TOBIIGAZE_FW_ERROR_UNKNOWN_OPERA, sizeof(__pyx_k_TOBIIGAZE_FW_ERROR_UNKNOWN_OPERA), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_FW_ERROR_UNSUPPORTED_O, __pyx_k_TOBIIGAZE_FW_ERROR_UNSUPPORTED_O, sizeof(__pyx_k_TOBIIGAZE_FW_ERROR_UNSUPPORTED_O), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_TRACKING_STATUS_BOTH_E, __pyx_k_TOBIIGAZE_TRACKING_STATUS_BOTH_E, sizeof(__pyx_k_TOBIIGAZE_TRACKING_STATUS_BOTH_E), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_TRACKING_STATUS_NO_EYE, __pyx_k_TOBIIGAZE_TRACKING_STATUS_NO_EYE, sizeof(__pyx_k_TOBIIGAZE_TRACKING_STATUS_NO_EYE), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_TRACKING_STATUS_ONE_EY, __pyx_k_TOBIIGAZE_TRACKING_STATUS_ONE_EY, sizeof(__pyx_k_TOBIIGAZE_TRACKING_STATUS_ONE_EY), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_TRACKING_STATUS_ONE_EY_2, __pyx_k_TOBIIGAZE_TRACKING_STATUS_ONE_EY_2, sizeof(__pyx_k_TOBIIGAZE_TRACKING_STATUS_ONE_EY_2), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_TRACKING_STATUS_ONE_EY_3, __pyx_k_TOBIIGAZE_TRACKING_STATUS_ONE_EY_3, sizeof(__pyx_k_TOBIIGAZE_TRACKING_STATUS_ONE_EY_3), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_TRACKING_STATUS_ONLY_L, __pyx_k_TOBIIGAZE_TRACKING_STATUS_ONLY_L, sizeof(__pyx_k_TOBIIGAZE_TRACKING_STATUS_ONLY_L), 0, 0, 1, 1},
+  {&__pyx_n_s_TOBIIGAZE_TRACKING_STATUS_ONLY_R, __pyx_k_TOBIIGAZE_TRACKING_STATUS_ONLY_R, sizeof(__pyx_k_TOBIIGAZE_TRACKING_STATUS_ONLY_R), 0, 0, 1, 1},
+  {&__pyx_n_s_Thread, __pyx_k_Thread, sizeof(__pyx_k_Thread), 0, 0, 1, 1},
+  {&__pyx_n_s_TrackerError, __pyx_k_TrackerError, sizeof(__pyx_k_TrackerError), 0, 0, 1, 1},
+  {&__pyx_n_s_TrackerError___init, __pyx_k_TrackerError___init, sizeof(__pyx_k_TrackerError___init), 0, 0, 1, 1},
+  {&__pyx_n_s_doc, __pyx_k_doc, sizeof(__pyx_k_doc), 0, 0, 1, 1},
   {&__pyx_n_s_error_code, __pyx_k_error_code, sizeof(__pyx_k_error_code), 0, 0, 1, 1},
+  {&__pyx_n_s_error_codes, __pyx_k_error_codes, sizeof(__pyx_k_error_codes), 0, 0, 1, 1},
   {&__pyx_n_s_gazesdk, __pyx_k_gazesdk, sizeof(__pyx_k_gazesdk), 0, 0, 1, 1},
   {&__pyx_n_s_get_connected_eye_tracker, __pyx_k_get_connected_eye_tracker, sizeof(__pyx_k_get_connected_eye_tracker), 0, 0, 1, 1},
   {&__pyx_n_s_get_version, __pyx_k_get_version, sizeof(__pyx_k_get_version), 0, 0, 1, 1},
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
+  {&__pyx_n_s_init, __pyx_k_init, sizeof(__pyx_k_init), 0, 0, 1, 1},
+  {&__pyx_n_s_join, __pyx_k_join, sizeof(__pyx_k_join), 0, 0, 1, 1},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
+  {&__pyx_n_s_message, __pyx_k_message, sizeof(__pyx_k_message), 0, 0, 1, 1},
+  {&__pyx_n_s_metaclass, __pyx_k_metaclass, sizeof(__pyx_k_metaclass), 0, 0, 1, 1},
+  {&__pyx_n_s_module, __pyx_k_module, sizeof(__pyx_k_module), 0, 0, 1, 1},
+  {&__pyx_n_s_prepare, __pyx_k_prepare, sizeof(__pyx_k_prepare), 0, 0, 1, 1},
   {&__pyx_n_s_put, __pyx_k_put, sizeof(__pyx_k_put), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_vtable, __pyx_k_pyx_vtable, sizeof(__pyx_k_pyx_vtable), 0, 0, 1, 1},
+  {&__pyx_n_s_qualname, __pyx_k_qualname, sizeof(__pyx_k_qualname), 0, 0, 1, 1},
+  {&__pyx_n_s_run_event_loop, __pyx_k_run_event_loop, sizeof(__pyx_k_run_event_loop), 0, 0, 1, 1},
+  {&__pyx_n_s_self, __pyx_k_self, sizeof(__pyx_k_self), 0, 0, 1, 1},
+  {&__pyx_n_s_start, __pyx_k_start, sizeof(__pyx_k_start), 0, 0, 1, 1},
+  {&__pyx_n_s_super, __pyx_k_super, sizeof(__pyx_k_super), 0, 0, 1, 1},
+  {&__pyx_n_s_target, __pyx_k_target, sizeof(__pyx_k_target), 0, 0, 1, 1},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
+  {&__pyx_n_s_threading, __pyx_k_threading, sizeof(__pyx_k_threading), 0, 0, 1, 1},
+  {&__pyx_n_s_tracking_statuses, __pyx_k_tracking_statuses, sizeof(__pyx_k_tracking_statuses), 0, 0, 1, 1},
   {&__pyx_n_s_url, __pyx_k_url, sizeof(__pyx_k_url), 0, 0, 1, 1},
   {&__pyx_n_s_url_size, __pyx_k_url_size, sizeof(__pyx_k_url_size), 0, 0, 1, 1},
   {0, 0, 0, 0, 0, 0, 0}
 };
 static int __Pyx_InitCachedBuiltins(void) {
+  __pyx_builtin_Exception = __Pyx_GetBuiltinName(__pyx_n_s_Exception); if (!__pyx_builtin_Exception) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 128; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_builtin_super = __Pyx_GetBuiltinName(__pyx_n_s_super); if (!__pyx_builtin_super) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 133; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   return 0;
+  __pyx_L1_error:;
+  return -1;
 }
 
 static int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "gazesdk.pyx":4
- * import  Queue
+  /* "gazesdk.pyx":5
+ * import threading
  * 
  * def get_version():             # <<<<<<<<<<<<<<
  *     return cgazesdk.tobiigaze_get_version()
  * 
  */
-  __pyx_codeobj_ = (PyObject*)__Pyx_PyCode_New(0, 0, 0, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_C_Users_luka_Desktop_gazesdk_gaz, __pyx_n_s_get_version, 4, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj_)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 4; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_codeobj_ = (PyObject*)__Pyx_PyCode_New(0, 0, 0, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_C_Users_luka_Desktop_gazesdk_gaz, __pyx_n_s_get_version, 5, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj_)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 5; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-  /* "gazesdk.pyx":7
+  /* "gazesdk.pyx":8
  *     return cgazesdk.tobiigaze_get_version()
  * 
  * def get_connected_eye_tracker():             # <<<<<<<<<<<<<<
  *     cdef cgazesdk.uint32_t url_size = 256
  *     cdef char url[256]
  */
-  __pyx_tuple__2 = PyTuple_Pack(3, __pyx_n_s_url_size, __pyx_n_s_url, __pyx_n_s_error_code); if (unlikely(!__pyx_tuple__2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 7; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_tuple__2 = PyTuple_Pack(3, __pyx_n_s_url_size, __pyx_n_s_url, __pyx_n_s_error_code); if (unlikely(!__pyx_tuple__2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 8; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple__2);
   __Pyx_GIVEREF(__pyx_tuple__2);
-  __pyx_codeobj__3 = (PyObject*)__Pyx_PyCode_New(0, 0, 3, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__2, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_C_Users_luka_Desktop_gazesdk_gaz, __pyx_n_s_get_connected_eye_tracker, 7, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 7; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_codeobj__3 = (PyObject*)__Pyx_PyCode_New(0, 0, 3, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__2, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_C_Users_luka_Desktop_gazesdk_gaz, __pyx_n_s_get_connected_eye_tracker, 8, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 8; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+
+  /* "gazesdk.pyx":130
+ * class TrackerError(Exception):
+ * 
+ *     def __init__(self, error_code):             # <<<<<<<<<<<<<<
+ *         self.error_code = error_code
+ *         message = error_codes[error_code]
+ */
+  __pyx_tuple__4 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_error_code, __pyx_n_s_message); if (unlikely(!__pyx_tuple__4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_tuple__4);
+  __Pyx_GIVEREF(__pyx_tuple__4);
+  __pyx_codeobj__5 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__4, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_C_Users_luka_Desktop_gazesdk_gaz, __pyx_n_s_init, 130, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -2845,6 +4126,35 @@ static int __Pyx_InitCachedConstants(void) {
 
 static int __Pyx_InitGlobals(void) {
   if (__Pyx_InitStrings(__pyx_string_tab) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+  __pyx_int_0 = PyInt_FromLong(0); if (unlikely(!__pyx_int_0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_1 = PyInt_FromLong(1); if (unlikely(!__pyx_int_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_2 = PyInt_FromLong(2); if (unlikely(!__pyx_int_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_3 = PyInt_FromLong(3); if (unlikely(!__pyx_int_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_4 = PyInt_FromLong(4); if (unlikely(!__pyx_int_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_5 = PyInt_FromLong(5); if (unlikely(!__pyx_int_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_6 = PyInt_FromLong(6); if (unlikely(!__pyx_int_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_100 = PyInt_FromLong(100); if (unlikely(!__pyx_int_100)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_101 = PyInt_FromLong(101); if (unlikely(!__pyx_int_101)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_200 = PyInt_FromLong(200); if (unlikely(!__pyx_int_200)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_201 = PyInt_FromLong(201); if (unlikely(!__pyx_int_201)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_202 = PyInt_FromLong(202); if (unlikely(!__pyx_int_202)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_203 = PyInt_FromLong(203); if (unlikely(!__pyx_int_203)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_204 = PyInt_FromLong(204); if (unlikely(!__pyx_int_204)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_205 = PyInt_FromLong(205); if (unlikely(!__pyx_int_205)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_206 = PyInt_FromLong(206); if (unlikely(!__pyx_int_206)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_300 = PyInt_FromLong(300); if (unlikely(!__pyx_int_300)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_301 = PyInt_FromLong(301); if (unlikely(!__pyx_int_301)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_536872192 = PyInt_FromLong(536872192L); if (unlikely(!__pyx_int_536872192)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_536872193 = PyInt_FromLong(536872193L); if (unlikely(!__pyx_int_536872193)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_536872194 = PyInt_FromLong(536872194L); if (unlikely(!__pyx_int_536872194)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_536872195 = PyInt_FromLong(536872195L); if (unlikely(!__pyx_int_536872195)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_536872196 = PyInt_FromLong(536872196L); if (unlikely(!__pyx_int_536872196)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_536872197 = PyInt_FromLong(536872197L); if (unlikely(!__pyx_int_536872197)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_536872198 = PyInt_FromLong(536872198L); if (unlikely(!__pyx_int_536872198)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_536872199 = PyInt_FromLong(536872199L); if (unlikely(!__pyx_int_536872199)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_536872200 = PyInt_FromLong(536872200L); if (unlikely(!__pyx_int_536872200)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_536872201 = PyInt_FromLong(536872201L); if (unlikely(!__pyx_int_536872201)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_int_536872202 = PyInt_FromLong(536872202L); if (unlikely(!__pyx_int_536872202)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   return 0;
   __pyx_L1_error:;
   return -1;
@@ -2859,6 +4169,9 @@ PyMODINIT_FUNC PyInit_gazesdk(void)
 #endif
 {
   PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -2932,21 +4245,21 @@ PyMODINIT_FUNC PyInit_gazesdk(void)
   /*--- Type init code ---*/
   __pyx_vtabptr_7gazesdk_GazeDataEye = &__pyx_vtable_7gazesdk_GazeDataEye;
   __pyx_vtable_7gazesdk_GazeDataEye.init = (void (*)(struct __pyx_obj_7gazesdk_GazeDataEye *, struct tobiigaze_gaze_data_eye))__pyx_f_7gazesdk_11GazeDataEye_init;
-  if (PyType_Ready(&__pyx_type_7gazesdk_GazeDataEye) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 14; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyType_Ready(&__pyx_type_7gazesdk_GazeDataEye) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 15; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_type_7gazesdk_GazeDataEye.tp_print = 0;
-  if (__Pyx_SetVtable(__pyx_type_7gazesdk_GazeDataEye.tp_dict, __pyx_vtabptr_7gazesdk_GazeDataEye) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 14; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (PyObject_SetAttrString(__pyx_m, "GazeDataEye", (PyObject *)&__pyx_type_7gazesdk_GazeDataEye) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 14; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (__Pyx_SetVtable(__pyx_type_7gazesdk_GazeDataEye.tp_dict, __pyx_vtabptr_7gazesdk_GazeDataEye) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 15; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyObject_SetAttrString(__pyx_m, "GazeDataEye", (PyObject *)&__pyx_type_7gazesdk_GazeDataEye) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 15; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_ptype_7gazesdk_GazeDataEye = &__pyx_type_7gazesdk_GazeDataEye;
   __pyx_vtabptr_7gazesdk_GazeData = &__pyx_vtable_7gazesdk_GazeData;
   __pyx_vtable_7gazesdk_GazeData.init = (void (*)(struct __pyx_obj_7gazesdk_GazeData *, struct tobiigaze_gaze_data *))__pyx_f_7gazesdk_8GazeData_init;
-  if (PyType_Ready(&__pyx_type_7gazesdk_GazeData) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 29; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyType_Ready(&__pyx_type_7gazesdk_GazeData) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 39; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_type_7gazesdk_GazeData.tp_print = 0;
-  if (__Pyx_SetVtable(__pyx_type_7gazesdk_GazeData.tp_dict, __pyx_vtabptr_7gazesdk_GazeData) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 29; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (PyObject_SetAttrString(__pyx_m, "GazeData", (PyObject *)&__pyx_type_7gazesdk_GazeData) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 29; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (__Pyx_SetVtable(__pyx_type_7gazesdk_GazeData.tp_dict, __pyx_vtabptr_7gazesdk_GazeData) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 39; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyObject_SetAttrString(__pyx_m, "GazeData", (PyObject *)&__pyx_type_7gazesdk_GazeData) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 39; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_ptype_7gazesdk_GazeData = &__pyx_type_7gazesdk_GazeData;
-  if (PyType_Ready(&__pyx_type_7gazesdk_Tracker) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 52; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyType_Ready(&__pyx_type_7gazesdk_Tracker) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 63; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_type_7gazesdk_Tracker.tp_print = 0;
-  if (PyObject_SetAttrString(__pyx_m, "Tracker", (PyObject *)&__pyx_type_7gazesdk_Tracker) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 52; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyObject_SetAttrString(__pyx_m, "Tracker", (PyObject *)&__pyx_type_7gazesdk_Tracker) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 63; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_ptype_7gazesdk_Tracker = &__pyx_type_7gazesdk_Tracker;
   /*--- Type import code ---*/
   /*--- Variable import code ---*/
@@ -2956,42 +4269,157 @@ PyMODINIT_FUNC PyInit_gazesdk(void)
   /* "gazesdk.pyx":2
  * cimport cgazesdk
  * import  Queue             # <<<<<<<<<<<<<<
+ * import threading
  * 
- * def get_version():
  */
   __pyx_t_1 = __Pyx_Import(__pyx_n_s_Queue, 0, -1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 2; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_Queue, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 2; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "gazesdk.pyx":4
+  /* "gazesdk.pyx":3
+ * cimport cgazesdk
  * import  Queue
+ * import threading             # <<<<<<<<<<<<<<
+ * 
+ * def get_version():
+ */
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_threading, 0, -1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 3; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_threading, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 3; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "gazesdk.pyx":5
+ * import threading
  * 
  * def get_version():             # <<<<<<<<<<<<<<
  *     return cgazesdk.tobiigaze_get_version()
  * 
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_7gazesdk_1get_version, NULL, __pyx_n_s_gazesdk); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 4; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_7gazesdk_1get_version, NULL, __pyx_n_s_gazesdk); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 5; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_get_version, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 4; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_get_version, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 5; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "gazesdk.pyx":7
+  /* "gazesdk.pyx":8
  *     return cgazesdk.tobiigaze_get_version()
  * 
  * def get_connected_eye_tracker():             # <<<<<<<<<<<<<<
  *     cdef cgazesdk.uint32_t url_size = 256
  *     cdef char url[256]
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_7gazesdk_3get_connected_eye_tracker, NULL, __pyx_n_s_gazesdk); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 7; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_7gazesdk_3get_connected_eye_tracker, NULL, __pyx_n_s_gazesdk); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 8; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_get_connected_eye_tracker, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 7; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_get_connected_eye_tracker, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 8; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "gazesdk.pyx":128
+ * 
+ * 
+ * class TrackerError(Exception):             # <<<<<<<<<<<<<<
+ * 
+ *     def __init__(self, error_code):
+ */
+  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 128; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_INCREF(__pyx_builtin_Exception);
+  __Pyx_GIVEREF(__pyx_builtin_Exception);
+  PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_builtin_Exception);
+  __pyx_t_2 = __Pyx_CalculateMetaclass(NULL, __pyx_t_1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 128; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = __Pyx_Py3MetaclassPrepare(__pyx_t_2, __pyx_t_1, __pyx_n_s_TrackerError, __pyx_n_s_TrackerError, (PyObject *) NULL, __pyx_n_s_gazesdk, (PyObject *) NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 128; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_3);
+
+  /* "gazesdk.pyx":130
+ * class TrackerError(Exception):
+ * 
+ *     def __init__(self, error_code):             # <<<<<<<<<<<<<<
+ *         self.error_code = error_code
+ *         message = error_codes[error_code]
+ */
+  __pyx_t_4 = __Pyx_CyFunction_NewEx(&__pyx_mdef_7gazesdk_12TrackerError_1__init__, 0, __pyx_n_s_TrackerError___init, NULL, __pyx_n_s_gazesdk, __pyx_d, ((PyObject *)__pyx_codeobj__5)); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_4);
+  if (PyObject_SetItem(__pyx_t_3, __pyx_n_s_init, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+
+  /* "gazesdk.pyx":128
+ * 
+ * 
+ * class TrackerError(Exception):             # <<<<<<<<<<<<<<
+ * 
+ *     def __init__(self, error_code):
+ */
+  __pyx_t_4 = __Pyx_Py3ClassCreate(__pyx_t_2, __pyx_n_s_TrackerError, __pyx_t_1, __pyx_t_3, NULL, 0, 1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 128; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_4);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_TrackerError, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 128; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "gazesdk.pyx":136
+ * 
+ * 
+ * error_codes = {             # <<<<<<<<<<<<<<
+ *     0:          'TOBIIGAZE_ERROR_SUCCESS',
+ *     1:          'TOBIIGAZE_ERROR_UNKNOWN',
+ */
+  __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_0, __pyx_n_s_TOBIIGAZE_ERROR_SUCCESS) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_1, __pyx_n_s_TOBIIGAZE_ERROR_UNKNOWN) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_2, __pyx_n_s_TOBIIGAZE_ERROR_OUT_OF_MEMORY) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_3, __pyx_n_s_TOBIIGAZE_ERROR_BUFFER_TOO_SMALL) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_4, __pyx_n_s_TOBIIGAZE_ERROR_INVALID_PARAMETE) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_5, __pyx_n_s_TOBIIGAZE_ERROR_INVALID_OPERATIO) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_100, __pyx_n_s_TOBIIGAZE_ERROR_TIMEOUT) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_101, __pyx_n_s_TOBIIGAZE_ERROR_OPERATION_ABORTE) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_200, __pyx_n_s_TOBIIGAZE_ERROR_INVALID_URL) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_201, __pyx_n_s_TOBIIGAZE_ERROR_ENDPOINT_NAME_LO) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_202, __pyx_n_s_TOBIIGAZE_ERROR_ENDPOINT_CONNECT) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_203, __pyx_n_s_TOBIIGAZE_ERROR_DEVICE_COMMUNICA) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_204, __pyx_n_s_TOBIIGAZE_ERROR_ALREADY_CONNECTE) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_205, __pyx_n_s_TOBIIGAZE_ERROR_NOT_CONNECTED) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_206, __pyx_n_s_TOBIIGAZE_ERROR_TIMESYNC_COMMUNI) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_300, __pyx_n_s_TOBIIGAZE_ERROR_PROTOCOL_DECODIN) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_301, __pyx_n_s_TOBIIGAZE_ERROR_PROTOCOL_VERSION) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_536872192, __pyx_n_s_TOBIIGAZE_FW_ERROR_UNKNOWN_OPERA) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_536872193, __pyx_n_s_TOBIIGAZE_FW_ERROR_UNSUPPORTED_O) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_536872194, __pyx_n_s_TOBIIGAZE_FW_ERROR_OPERATION_FAI) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_536872195, __pyx_n_s_TOBIIGAZE_FW_ERROR_INVALID_PAYLO) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_536872196, __pyx_n_s_TOBIIGAZE_FW_ERROR_UNKNOWN_ID) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_536872197, __pyx_n_s_TOBIIGAZE_FW_ERROR_UNAUTHORIZED) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_536872198, __pyx_n_s_TOBIIGAZE_FW_ERROR_EXTENSION_REQ) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_536872199, __pyx_n_s_TOBIIGAZE_FW_ERROR_INTERNAL_ERRO) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_536872200, __pyx_n_s_TOBIIGAZE_FW_ERROR_STATE_ERROR) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_536872201, __pyx_n_s_TOBIIGAZE_FW_ERROR_INVALID_PARAM) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_536872202, __pyx_n_s_TOBIIGAZE_FW_ERROR_OPERATION_ABO) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_error_codes, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 136; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "gazesdk.pyx":167
+ * }
+ * 
+ * tracking_statuses = {             # <<<<<<<<<<<<<<
+ *     0: 'TOBIIGAZE_TRACKING_STATUS_NO_EYES_TRACKED',
+ *     1: 'TOBIIGAZE_TRACKING_STATUS_BOTH_EYES_TRACKED',
+ */
+  __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_0, __pyx_n_s_TOBIIGAZE_TRACKING_STATUS_NO_EYE) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_1, __pyx_n_s_TOBIIGAZE_TRACKING_STATUS_BOTH_E) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_2, __pyx_n_s_TOBIIGAZE_TRACKING_STATUS_ONLY_L) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_3, __pyx_n_s_TOBIIGAZE_TRACKING_STATUS_ONE_EY) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_4, __pyx_n_s_TOBIIGAZE_TRACKING_STATUS_ONE_EY_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_5, __pyx_n_s_TOBIIGAZE_TRACKING_STATUS_ONE_EY_3) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_int_6, __pyx_n_s_TOBIIGAZE_TRACKING_STATUS_ONLY_R) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_tracking_statuses, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "gazesdk.pyx":1
  * cimport cgazesdk             # <<<<<<<<<<<<<<
  * import  Queue
- * 
+ * import threading
  */
   __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
@@ -3003,6 +4431,9 @@ PyMODINIT_FUNC PyInit_gazesdk(void)
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
   if (__pyx_m) {
     if (__pyx_d) {
       __Pyx_AddTraceback("init gazesdk", __pyx_clineno, __pyx_lineno, __pyx_filename);
@@ -3036,6 +4467,19 @@ end:
     return (__Pyx_RefNannyAPIStruct *)r;
 }
 #endif
+
+static PyObject *__Pyx_GetBuiltinName(PyObject *name) {
+    PyObject* result = __Pyx_PyObject_GetAttrStr(__pyx_b, name);
+    if (unlikely(!result)) {
+        PyErr_Format(PyExc_NameError,
+#if PY_MAJOR_VERSION >= 3
+            "name '%U' is not defined", name);
+#else
+            "name '%.200s' is not defined", PyString_AS_STRING(name));
+#endif
+    }
+    return result;
+}
 
 static CYTHON_INLINE void __Pyx_ErrRestore(PyObject *type, PyObject *value, PyObject *tb) {
 #if CYTHON_COMPILING_IN_CPYTHON
@@ -3172,6 +4616,120 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObjec
 }
 #endif
 
+static void __Pyx_RaiseDoubleKeywordsError(
+    const char* func_name,
+    PyObject* kw_name)
+{
+    PyErr_Format(PyExc_TypeError,
+        #if PY_MAJOR_VERSION >= 3
+        "%s() got multiple values for keyword argument '%U'", func_name, kw_name);
+        #else
+        "%s() got multiple values for keyword argument '%s'", func_name,
+        PyString_AsString(kw_name));
+        #endif
+}
+
+static int __Pyx_ParseOptionalKeywords(
+    PyObject *kwds,
+    PyObject **argnames[],
+    PyObject *kwds2,
+    PyObject *values[],
+    Py_ssize_t num_pos_args,
+    const char* function_name)
+{
+    PyObject *key = 0, *value = 0;
+    Py_ssize_t pos = 0;
+    PyObject*** name;
+    PyObject*** first_kw_arg = argnames + num_pos_args;
+    while (PyDict_Next(kwds, &pos, &key, &value)) {
+        name = first_kw_arg;
+        while (*name && (**name != key)) name++;
+        if (*name) {
+            values[name-argnames] = value;
+            continue;
+        }
+        name = first_kw_arg;
+        #if PY_MAJOR_VERSION < 3
+        if (likely(PyString_CheckExact(key)) || likely(PyString_Check(key))) {
+            while (*name) {
+                if ((CYTHON_COMPILING_IN_PYPY || PyString_GET_SIZE(**name) == PyString_GET_SIZE(key))
+                        && _PyString_Eq(**name, key)) {
+                    values[name-argnames] = value;
+                    break;
+                }
+                name++;
+            }
+            if (*name) continue;
+            else {
+                PyObject*** argname = argnames;
+                while (argname != first_kw_arg) {
+                    if ((**argname == key) || (
+                            (CYTHON_COMPILING_IN_PYPY || PyString_GET_SIZE(**argname) == PyString_GET_SIZE(key))
+                             && _PyString_Eq(**argname, key))) {
+                        goto arg_passed_twice;
+                    }
+                    argname++;
+                }
+            }
+        } else
+        #endif
+        if (likely(PyUnicode_Check(key))) {
+            while (*name) {
+                int cmp = (**name == key) ? 0 :
+                #if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION >= 3
+                    (PyUnicode_GET_SIZE(**name) != PyUnicode_GET_SIZE(key)) ? 1 :
+                #endif
+                    PyUnicode_Compare(**name, key);
+                if (cmp < 0 && unlikely(PyErr_Occurred())) goto bad;
+                if (cmp == 0) {
+                    values[name-argnames] = value;
+                    break;
+                }
+                name++;
+            }
+            if (*name) continue;
+            else {
+                PyObject*** argname = argnames;
+                while (argname != first_kw_arg) {
+                    int cmp = (**argname == key) ? 0 :
+                    #if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION >= 3
+                        (PyUnicode_GET_SIZE(**argname) != PyUnicode_GET_SIZE(key)) ? 1 :
+                    #endif
+                        PyUnicode_Compare(**argname, key);
+                    if (cmp < 0 && unlikely(PyErr_Occurred())) goto bad;
+                    if (cmp == 0) goto arg_passed_twice;
+                    argname++;
+                }
+            }
+        } else
+            goto invalid_keyword_type;
+        if (kwds2) {
+            if (unlikely(PyDict_SetItem(kwds2, key, value))) goto bad;
+        } else {
+            goto invalid_keyword;
+        }
+    }
+    return 0;
+arg_passed_twice:
+    __Pyx_RaiseDoubleKeywordsError(function_name, key);
+    goto bad;
+invalid_keyword_type:
+    PyErr_Format(PyExc_TypeError,
+        "%.200s() keywords must be strings", function_name);
+    goto bad;
+invalid_keyword:
+    PyErr_Format(PyExc_TypeError,
+    #if PY_MAJOR_VERSION < 3
+        "%.200s() got an unexpected keyword argument '%.200s'",
+        function_name, PyString_AsString(key));
+    #else
+        "%s() got an unexpected keyword argument '%U'",
+        function_name, key);
+    #endif
+bad:
+    return -1;
+}
+
 static void __Pyx_RaiseArgtupleInvalid(
     const char* func_name,
     int exact,
@@ -3195,58 +4753,6 @@ static void __Pyx_RaiseArgtupleInvalid(
                  "%.200s() takes %.8s %" CYTHON_FORMAT_SSIZE_T "d positional argument%.1s (%" CYTHON_FORMAT_SSIZE_T "d given)",
                  func_name, more_or_less, num_expected,
                  (num_expected == 1) ? "" : "s", num_found);
-}
-
-static CYTHON_INLINE int __Pyx_CheckKeywordStrings(
-    PyObject *kwdict,
-    const char* function_name,
-    int kw_allowed)
-{
-    PyObject* key = 0;
-    Py_ssize_t pos = 0;
-#if CYTHON_COMPILING_IN_PYPY
-    if (!kw_allowed && PyDict_Next(kwdict, &pos, &key, 0))
-        goto invalid_keyword;
-    return 1;
-#else
-    while (PyDict_Next(kwdict, &pos, &key, 0)) {
-        #if PY_MAJOR_VERSION < 3
-        if (unlikely(!PyString_CheckExact(key)) && unlikely(!PyString_Check(key)))
-        #endif
-            if (unlikely(!PyUnicode_Check(key)))
-                goto invalid_keyword_type;
-    }
-    if ((!kw_allowed) && unlikely(key))
-        goto invalid_keyword;
-    return 1;
-invalid_keyword_type:
-    PyErr_Format(PyExc_TypeError,
-        "%.200s() keywords must be strings", function_name);
-    return 0;
-#endif
-invalid_keyword:
-    PyErr_Format(PyExc_TypeError,
-    #if PY_MAJOR_VERSION < 3
-        "%.200s() got an unexpected keyword argument '%.200s'",
-        function_name, PyString_AsString(key));
-    #else
-        "%s() got an unexpected keyword argument '%U'",
-        function_name, key);
-    #endif
-    return 0;
-}
-
-static PyObject *__Pyx_GetBuiltinName(PyObject *name) {
-    PyObject* result = __Pyx_PyObject_GetAttrStr(__pyx_b, name);
-    if (unlikely(!result)) {
-        PyErr_Format(PyExc_NameError,
-#if PY_MAJOR_VERSION >= 3
-            "name '%U' is not defined", name);
-#else
-            "name '%.200s' is not defined", PyString_AS_STRING(name));
-#endif
-    }
-    return result;
 }
 
 static CYTHON_INLINE PyObject *__Pyx_GetModuleGlobalName(PyObject *name) {
@@ -3281,6 +4787,166 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_CallNoArg(PyObject *func) {
 }
 #endif
 
+#if PY_MAJOR_VERSION < 3
+static void __Pyx_Raise(PyObject *type, PyObject *value, PyObject *tb,
+                        CYTHON_UNUSED PyObject *cause) {
+    Py_XINCREF(type);
+    if (!value || value == Py_None)
+        value = NULL;
+    else
+        Py_INCREF(value);
+    if (!tb || tb == Py_None)
+        tb = NULL;
+    else {
+        Py_INCREF(tb);
+        if (!PyTraceBack_Check(tb)) {
+            PyErr_SetString(PyExc_TypeError,
+                "raise: arg 3 must be a traceback or None");
+            goto raise_error;
+        }
+    }
+    if (PyType_Check(type)) {
+#if CYTHON_COMPILING_IN_PYPY
+        if (!value) {
+            Py_INCREF(Py_None);
+            value = Py_None;
+        }
+#endif
+        PyErr_NormalizeException(&type, &value, &tb);
+    } else {
+        if (value) {
+            PyErr_SetString(PyExc_TypeError,
+                "instance exception may not have a separate value");
+            goto raise_error;
+        }
+        value = type;
+        type = (PyObject*) Py_TYPE(type);
+        Py_INCREF(type);
+        if (!PyType_IsSubtype((PyTypeObject *)type, (PyTypeObject *)PyExc_BaseException)) {
+            PyErr_SetString(PyExc_TypeError,
+                "raise: exception class must be a subclass of BaseException");
+            goto raise_error;
+        }
+    }
+    __Pyx_ErrRestore(type, value, tb);
+    return;
+raise_error:
+    Py_XDECREF(value);
+    Py_XDECREF(type);
+    Py_XDECREF(tb);
+    return;
+}
+#else
+static void __Pyx_Raise(PyObject *type, PyObject *value, PyObject *tb, PyObject *cause) {
+    PyObject* owned_instance = NULL;
+    if (tb == Py_None) {
+        tb = 0;
+    } else if (tb && !PyTraceBack_Check(tb)) {
+        PyErr_SetString(PyExc_TypeError,
+            "raise: arg 3 must be a traceback or None");
+        goto bad;
+    }
+    if (value == Py_None)
+        value = 0;
+    if (PyExceptionInstance_Check(type)) {
+        if (value) {
+            PyErr_SetString(PyExc_TypeError,
+                "instance exception may not have a separate value");
+            goto bad;
+        }
+        value = type;
+        type = (PyObject*) Py_TYPE(value);
+    } else if (PyExceptionClass_Check(type)) {
+        PyObject *instance_class = NULL;
+        if (value && PyExceptionInstance_Check(value)) {
+            instance_class = (PyObject*) Py_TYPE(value);
+            if (instance_class != type) {
+                int is_subclass = PyObject_IsSubclass(instance_class, type);
+                if (!is_subclass) {
+                    instance_class = NULL;
+                } else if (unlikely(is_subclass == -1)) {
+                    goto bad;
+                } else {
+                    type = instance_class;
+                }
+            }
+        }
+        if (!instance_class) {
+            PyObject *args;
+            if (!value)
+                args = PyTuple_New(0);
+            else if (PyTuple_Check(value)) {
+                Py_INCREF(value);
+                args = value;
+            } else
+                args = PyTuple_Pack(1, value);
+            if (!args)
+                goto bad;
+            owned_instance = PyObject_Call(type, args, NULL);
+            Py_DECREF(args);
+            if (!owned_instance)
+                goto bad;
+            value = owned_instance;
+            if (!PyExceptionInstance_Check(value)) {
+                PyErr_Format(PyExc_TypeError,
+                             "calling %R should have returned an instance of "
+                             "BaseException, not %R",
+                             type, Py_TYPE(value));
+                goto bad;
+            }
+        }
+    } else {
+        PyErr_SetString(PyExc_TypeError,
+            "raise: exception class must be a subclass of BaseException");
+        goto bad;
+    }
+#if PY_VERSION_HEX >= 0x03030000
+    if (cause) {
+#else
+    if (cause && cause != Py_None) {
+#endif
+        PyObject *fixed_cause;
+        if (cause == Py_None) {
+            fixed_cause = NULL;
+        } else if (PyExceptionClass_Check(cause)) {
+            fixed_cause = PyObject_CallObject(cause, NULL);
+            if (fixed_cause == NULL)
+                goto bad;
+        } else if (PyExceptionInstance_Check(cause)) {
+            fixed_cause = cause;
+            Py_INCREF(fixed_cause);
+        } else {
+            PyErr_SetString(PyExc_TypeError,
+                            "exception causes must derive from "
+                            "BaseException");
+            goto bad;
+        }
+        PyException_SetCause(value, fixed_cause);
+    }
+    PyErr_SetObject(type, value);
+    if (tb) {
+#if CYTHON_COMPILING_IN_PYPY
+        PyObject *tmp_type, *tmp_value, *tmp_tb;
+        PyErr_Fetch(&tmp_type, &tmp_value, &tmp_tb);
+        Py_INCREF(tb);
+        PyErr_Restore(tmp_type, tmp_value, tb);
+        Py_XDECREF(tmp_tb);
+#else
+        PyThreadState *tstate = PyThreadState_GET();
+        PyObject* tmp_tb = tstate->curexc_traceback;
+        if (tb != tmp_tb) {
+            Py_INCREF(tb);
+            tstate->curexc_traceback = tb;
+            Py_XDECREF(tmp_tb);
+        }
+#endif
+    }
+bad:
+    Py_XDECREF(owned_instance);
+    return;
+}
+#endif
+
 static int __Pyx_SetVtable(PyObject *dict, void *vtable) {
 #if PY_VERSION_HEX >= 0x02070000
     PyObject *ob = PyCapsule_New(vtable, 0, 0);
@@ -3296,6 +4962,699 @@ static int __Pyx_SetVtable(PyObject *dict, void *vtable) {
 bad:
     Py_XDECREF(ob);
     return -1;
+}
+
+static PyObject *__Pyx_CalculateMetaclass(PyTypeObject *metaclass, PyObject *bases) {
+    Py_ssize_t i, nbases = PyTuple_GET_SIZE(bases);
+    for (i=0; i < nbases; i++) {
+        PyTypeObject *tmptype;
+        PyObject *tmp = PyTuple_GET_ITEM(bases, i);
+        tmptype = Py_TYPE(tmp);
+#if PY_MAJOR_VERSION < 3
+        if (tmptype == &PyClass_Type)
+            continue;
+#endif
+        if (!metaclass) {
+            metaclass = tmptype;
+            continue;
+        }
+        if (PyType_IsSubtype(metaclass, tmptype))
+            continue;
+        if (PyType_IsSubtype(tmptype, metaclass)) {
+            metaclass = tmptype;
+            continue;
+        }
+        PyErr_SetString(PyExc_TypeError,
+                        "metaclass conflict: "
+                        "the metaclass of a derived class "
+                        "must be a (non-strict) subclass "
+                        "of the metaclasses of all its bases");
+        return NULL;
+    }
+    if (!metaclass) {
+#if PY_MAJOR_VERSION < 3
+        metaclass = &PyClass_Type;
+#else
+        metaclass = &PyType_Type;
+#endif
+    }
+    Py_INCREF((PyObject*) metaclass);
+    return (PyObject*) metaclass;
+}
+
+static PyTypeObject* __Pyx_FetchCommonType(PyTypeObject* type) {
+    PyObject* fake_module;
+    PyTypeObject* cached_type = NULL;
+    fake_module = PyImport_AddModule((char*) "_cython_" CYTHON_ABI);
+    if (!fake_module) return NULL;
+    Py_INCREF(fake_module);
+    cached_type = (PyTypeObject*) PyObject_GetAttrString(fake_module, type->tp_name);
+    if (cached_type) {
+        if (!PyType_Check((PyObject*)cached_type)) {
+            PyErr_Format(PyExc_TypeError,
+                "Shared Cython type %.200s is not a type object",
+                type->tp_name);
+            goto bad;
+        }
+        if (cached_type->tp_basicsize != type->tp_basicsize) {
+            PyErr_Format(PyExc_TypeError,
+                "Shared Cython type %.200s has the wrong size, try recompiling",
+                type->tp_name);
+            goto bad;
+        }
+    } else {
+        if (!PyErr_ExceptionMatches(PyExc_AttributeError)) goto bad;
+        PyErr_Clear();
+        if (PyType_Ready(type) < 0) goto bad;
+        if (PyObject_SetAttrString(fake_module, type->tp_name, (PyObject*) type) < 0)
+            goto bad;
+        Py_INCREF(type);
+        cached_type = type;
+    }
+done:
+    Py_DECREF(fake_module);
+    return cached_type;
+bad:
+    Py_XDECREF(cached_type);
+    cached_type = NULL;
+    goto done;
+}
+
+static PyObject *
+__Pyx_CyFunction_get_doc(__pyx_CyFunctionObject *op, CYTHON_UNUSED void *closure)
+{
+    if (unlikely(op->func_doc == NULL)) {
+        if (op->func.m_ml->ml_doc) {
+#if PY_MAJOR_VERSION >= 3
+            op->func_doc = PyUnicode_FromString(op->func.m_ml->ml_doc);
+#else
+            op->func_doc = PyString_FromString(op->func.m_ml->ml_doc);
+#endif
+            if (unlikely(op->func_doc == NULL))
+                return NULL;
+        } else {
+            Py_INCREF(Py_None);
+            return Py_None;
+        }
+    }
+    Py_INCREF(op->func_doc);
+    return op->func_doc;
+}
+static int
+__Pyx_CyFunction_set_doc(__pyx_CyFunctionObject *op, PyObject *value)
+{
+    PyObject *tmp = op->func_doc;
+    if (value == NULL) {
+        value = Py_None;
+    }
+    Py_INCREF(value);
+    op->func_doc = value;
+    Py_XDECREF(tmp);
+    return 0;
+}
+static PyObject *
+__Pyx_CyFunction_get_name(__pyx_CyFunctionObject *op)
+{
+    if (unlikely(op->func_name == NULL)) {
+#if PY_MAJOR_VERSION >= 3
+        op->func_name = PyUnicode_InternFromString(op->func.m_ml->ml_name);
+#else
+        op->func_name = PyString_InternFromString(op->func.m_ml->ml_name);
+#endif
+        if (unlikely(op->func_name == NULL))
+            return NULL;
+    }
+    Py_INCREF(op->func_name);
+    return op->func_name;
+}
+static int
+__Pyx_CyFunction_set_name(__pyx_CyFunctionObject *op, PyObject *value)
+{
+    PyObject *tmp;
+#if PY_MAJOR_VERSION >= 3
+    if (unlikely(value == NULL || !PyUnicode_Check(value))) {
+#else
+    if (unlikely(value == NULL || !PyString_Check(value))) {
+#endif
+        PyErr_SetString(PyExc_TypeError,
+                        "__name__ must be set to a string object");
+        return -1;
+    }
+    tmp = op->func_name;
+    Py_INCREF(value);
+    op->func_name = value;
+    Py_XDECREF(tmp);
+    return 0;
+}
+static PyObject *
+__Pyx_CyFunction_get_qualname(__pyx_CyFunctionObject *op)
+{
+    Py_INCREF(op->func_qualname);
+    return op->func_qualname;
+}
+static int
+__Pyx_CyFunction_set_qualname(__pyx_CyFunctionObject *op, PyObject *value)
+{
+    PyObject *tmp;
+#if PY_MAJOR_VERSION >= 3
+    if (unlikely(value == NULL || !PyUnicode_Check(value))) {
+#else
+    if (unlikely(value == NULL || !PyString_Check(value))) {
+#endif
+        PyErr_SetString(PyExc_TypeError,
+                        "__qualname__ must be set to a string object");
+        return -1;
+    }
+    tmp = op->func_qualname;
+    Py_INCREF(value);
+    op->func_qualname = value;
+    Py_XDECREF(tmp);
+    return 0;
+}
+static PyObject *
+__Pyx_CyFunction_get_self(__pyx_CyFunctionObject *m, CYTHON_UNUSED void *closure)
+{
+    PyObject *self;
+    self = m->func_closure;
+    if (self == NULL)
+        self = Py_None;
+    Py_INCREF(self);
+    return self;
+}
+static PyObject *
+__Pyx_CyFunction_get_dict(__pyx_CyFunctionObject *op)
+{
+    if (unlikely(op->func_dict == NULL)) {
+        op->func_dict = PyDict_New();
+        if (unlikely(op->func_dict == NULL))
+            return NULL;
+    }
+    Py_INCREF(op->func_dict);
+    return op->func_dict;
+}
+static int
+__Pyx_CyFunction_set_dict(__pyx_CyFunctionObject *op, PyObject *value)
+{
+    PyObject *tmp;
+    if (unlikely(value == NULL)) {
+        PyErr_SetString(PyExc_TypeError,
+               "function's dictionary may not be deleted");
+        return -1;
+    }
+    if (unlikely(!PyDict_Check(value))) {
+        PyErr_SetString(PyExc_TypeError,
+               "setting function's dictionary to a non-dict");
+        return -1;
+    }
+    tmp = op->func_dict;
+    Py_INCREF(value);
+    op->func_dict = value;
+    Py_XDECREF(tmp);
+    return 0;
+}
+static PyObject *
+__Pyx_CyFunction_get_globals(__pyx_CyFunctionObject *op)
+{
+    Py_INCREF(op->func_globals);
+    return op->func_globals;
+}
+static PyObject *
+__Pyx_CyFunction_get_closure(CYTHON_UNUSED __pyx_CyFunctionObject *op)
+{
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+static PyObject *
+__Pyx_CyFunction_get_code(__pyx_CyFunctionObject *op)
+{
+    PyObject* result = (op->func_code) ? op->func_code : Py_None;
+    Py_INCREF(result);
+    return result;
+}
+static int
+__Pyx_CyFunction_init_defaults(__pyx_CyFunctionObject *op) {
+    PyObject *res = op->defaults_getter((PyObject *) op);
+    if (unlikely(!res))
+        return -1;
+    op->defaults_tuple = PyTuple_GET_ITEM(res, 0);
+    Py_INCREF(op->defaults_tuple);
+    op->defaults_kwdict = PyTuple_GET_ITEM(res, 1);
+    Py_INCREF(op->defaults_kwdict);
+    Py_DECREF(res);
+    return 0;
+}
+static int
+__Pyx_CyFunction_set_defaults(__pyx_CyFunctionObject *op, PyObject* value) {
+    PyObject* tmp;
+    if (!value) {
+        value = Py_None;
+    } else if (value != Py_None && !PyTuple_Check(value)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "__defaults__ must be set to a tuple object");
+        return -1;
+    }
+    Py_INCREF(value);
+    tmp = op->defaults_tuple;
+    op->defaults_tuple = value;
+    Py_XDECREF(tmp);
+    return 0;
+}
+static PyObject *
+__Pyx_CyFunction_get_defaults(__pyx_CyFunctionObject *op) {
+    PyObject* result = op->defaults_tuple;
+    if (unlikely(!result)) {
+        if (op->defaults_getter) {
+            if (__Pyx_CyFunction_init_defaults(op) < 0) return NULL;
+            result = op->defaults_tuple;
+        } else {
+            result = Py_None;
+        }
+    }
+    Py_INCREF(result);
+    return result;
+}
+static int
+__Pyx_CyFunction_set_kwdefaults(__pyx_CyFunctionObject *op, PyObject* value) {
+    PyObject* tmp;
+    if (!value) {
+        value = Py_None;
+    } else if (value != Py_None && !PyDict_Check(value)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "__kwdefaults__ must be set to a dict object");
+        return -1;
+    }
+    Py_INCREF(value);
+    tmp = op->defaults_kwdict;
+    op->defaults_kwdict = value;
+    Py_XDECREF(tmp);
+    return 0;
+}
+static PyObject *
+__Pyx_CyFunction_get_kwdefaults(__pyx_CyFunctionObject *op) {
+    PyObject* result = op->defaults_kwdict;
+    if (unlikely(!result)) {
+        if (op->defaults_getter) {
+            if (__Pyx_CyFunction_init_defaults(op) < 0) return NULL;
+            result = op->defaults_kwdict;
+        } else {
+            result = Py_None;
+        }
+    }
+    Py_INCREF(result);
+    return result;
+}
+static int
+__Pyx_CyFunction_set_annotations(__pyx_CyFunctionObject *op, PyObject* value) {
+    PyObject* tmp;
+    if (!value || value == Py_None) {
+        value = NULL;
+    } else if (!PyDict_Check(value)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "__annotations__ must be set to a dict object");
+        return -1;
+    }
+    Py_XINCREF(value);
+    tmp = op->func_annotations;
+    op->func_annotations = value;
+    Py_XDECREF(tmp);
+    return 0;
+}
+static PyObject *
+__Pyx_CyFunction_get_annotations(__pyx_CyFunctionObject *op) {
+    PyObject* result = op->func_annotations;
+    if (unlikely(!result)) {
+        result = PyDict_New();
+        if (unlikely(!result)) return NULL;
+        op->func_annotations = result;
+    }
+    Py_INCREF(result);
+    return result;
+}
+static PyGetSetDef __pyx_CyFunction_getsets[] = {
+    {(char *) "func_doc", (getter)__Pyx_CyFunction_get_doc, (setter)__Pyx_CyFunction_set_doc, 0, 0},
+    {(char *) "__doc__",  (getter)__Pyx_CyFunction_get_doc, (setter)__Pyx_CyFunction_set_doc, 0, 0},
+    {(char *) "func_name", (getter)__Pyx_CyFunction_get_name, (setter)__Pyx_CyFunction_set_name, 0, 0},
+    {(char *) "__name__", (getter)__Pyx_CyFunction_get_name, (setter)__Pyx_CyFunction_set_name, 0, 0},
+    {(char *) "__qualname__", (getter)__Pyx_CyFunction_get_qualname, (setter)__Pyx_CyFunction_set_qualname, 0, 0},
+    {(char *) "__self__", (getter)__Pyx_CyFunction_get_self, 0, 0, 0},
+    {(char *) "func_dict", (getter)__Pyx_CyFunction_get_dict, (setter)__Pyx_CyFunction_set_dict, 0, 0},
+    {(char *) "__dict__", (getter)__Pyx_CyFunction_get_dict, (setter)__Pyx_CyFunction_set_dict, 0, 0},
+    {(char *) "func_globals", (getter)__Pyx_CyFunction_get_globals, 0, 0, 0},
+    {(char *) "__globals__", (getter)__Pyx_CyFunction_get_globals, 0, 0, 0},
+    {(char *) "func_closure", (getter)__Pyx_CyFunction_get_closure, 0, 0, 0},
+    {(char *) "__closure__", (getter)__Pyx_CyFunction_get_closure, 0, 0, 0},
+    {(char *) "func_code", (getter)__Pyx_CyFunction_get_code, 0, 0, 0},
+    {(char *) "__code__", (getter)__Pyx_CyFunction_get_code, 0, 0, 0},
+    {(char *) "func_defaults", (getter)__Pyx_CyFunction_get_defaults, (setter)__Pyx_CyFunction_set_defaults, 0, 0},
+    {(char *) "__defaults__", (getter)__Pyx_CyFunction_get_defaults, (setter)__Pyx_CyFunction_set_defaults, 0, 0},
+    {(char *) "__kwdefaults__", (getter)__Pyx_CyFunction_get_kwdefaults, (setter)__Pyx_CyFunction_set_kwdefaults, 0, 0},
+    {(char *) "__annotations__", (getter)__Pyx_CyFunction_get_annotations, (setter)__Pyx_CyFunction_set_annotations, 0, 0},
+    {0, 0, 0, 0, 0}
+};
+static PyMemberDef __pyx_CyFunction_members[] = {
+    {(char *) "__module__", T_OBJECT, offsetof(__pyx_CyFunctionObject, func.m_module), PY_WRITE_RESTRICTED, 0},
+    {0, 0, 0,  0, 0}
+};
+static PyObject *
+__Pyx_CyFunction_reduce(__pyx_CyFunctionObject *m, CYTHON_UNUSED PyObject *args)
+{
+#if PY_MAJOR_VERSION >= 3
+    return PyUnicode_FromString(m->func.m_ml->ml_name);
+#else
+    return PyString_FromString(m->func.m_ml->ml_name);
+#endif
+}
+static PyMethodDef __pyx_CyFunction_methods[] = {
+    {"__reduce__", (PyCFunction)__Pyx_CyFunction_reduce, METH_VARARGS, 0},
+    {0, 0, 0, 0}
+};
+#if PY_VERSION_HEX < 0x030500A0
+#define __Pyx_CyFunction_weakreflist(cyfunc) ((cyfunc)->func_weakreflist)
+#else
+#define __Pyx_CyFunction_weakreflist(cyfunc) ((cyfunc)->func.m_weakreflist)
+#endif
+static PyObject *__Pyx_CyFunction_New(PyTypeObject *type, PyMethodDef *ml, int flags, PyObject* qualname,
+                                      PyObject *closure, PyObject *module, PyObject* globals, PyObject* code) {
+    __pyx_CyFunctionObject *op = PyObject_GC_New(__pyx_CyFunctionObject, type);
+    if (op == NULL)
+        return NULL;
+    op->flags = flags;
+    __Pyx_CyFunction_weakreflist(op) = NULL;
+    op->func.m_ml = ml;
+    op->func.m_self = (PyObject *) op;
+    Py_XINCREF(closure);
+    op->func_closure = closure;
+    Py_XINCREF(module);
+    op->func.m_module = module;
+    op->func_dict = NULL;
+    op->func_name = NULL;
+    Py_INCREF(qualname);
+    op->func_qualname = qualname;
+    op->func_doc = NULL;
+    op->func_classobj = NULL;
+    op->func_globals = globals;
+    Py_INCREF(op->func_globals);
+    Py_XINCREF(code);
+    op->func_code = code;
+    op->defaults_pyobjects = 0;
+    op->defaults = NULL;
+    op->defaults_tuple = NULL;
+    op->defaults_kwdict = NULL;
+    op->defaults_getter = NULL;
+    op->func_annotations = NULL;
+    PyObject_GC_Track(op);
+    return (PyObject *) op;
+}
+static int
+__Pyx_CyFunction_clear(__pyx_CyFunctionObject *m)
+{
+    Py_CLEAR(m->func_closure);
+    Py_CLEAR(m->func.m_module);
+    Py_CLEAR(m->func_dict);
+    Py_CLEAR(m->func_name);
+    Py_CLEAR(m->func_qualname);
+    Py_CLEAR(m->func_doc);
+    Py_CLEAR(m->func_globals);
+    Py_CLEAR(m->func_code);
+    Py_CLEAR(m->func_classobj);
+    Py_CLEAR(m->defaults_tuple);
+    Py_CLEAR(m->defaults_kwdict);
+    Py_CLEAR(m->func_annotations);
+    if (m->defaults) {
+        PyObject **pydefaults = __Pyx_CyFunction_Defaults(PyObject *, m);
+        int i;
+        for (i = 0; i < m->defaults_pyobjects; i++)
+            Py_XDECREF(pydefaults[i]);
+        PyMem_Free(m->defaults);
+        m->defaults = NULL;
+    }
+    return 0;
+}
+static void __Pyx_CyFunction_dealloc(__pyx_CyFunctionObject *m)
+{
+    PyObject_GC_UnTrack(m);
+    if (__Pyx_CyFunction_weakreflist(m) != NULL)
+        PyObject_ClearWeakRefs((PyObject *) m);
+    __Pyx_CyFunction_clear(m);
+    PyObject_GC_Del(m);
+}
+static int __Pyx_CyFunction_traverse(__pyx_CyFunctionObject *m, visitproc visit, void *arg)
+{
+    Py_VISIT(m->func_closure);
+    Py_VISIT(m->func.m_module);
+    Py_VISIT(m->func_dict);
+    Py_VISIT(m->func_name);
+    Py_VISIT(m->func_qualname);
+    Py_VISIT(m->func_doc);
+    Py_VISIT(m->func_globals);
+    Py_VISIT(m->func_code);
+    Py_VISIT(m->func_classobj);
+    Py_VISIT(m->defaults_tuple);
+    Py_VISIT(m->defaults_kwdict);
+    if (m->defaults) {
+        PyObject **pydefaults = __Pyx_CyFunction_Defaults(PyObject *, m);
+        int i;
+        for (i = 0; i < m->defaults_pyobjects; i++)
+            Py_VISIT(pydefaults[i]);
+    }
+    return 0;
+}
+static PyObject *__Pyx_CyFunction_descr_get(PyObject *func, PyObject *obj, PyObject *type)
+{
+    __pyx_CyFunctionObject *m = (__pyx_CyFunctionObject *) func;
+    if (m->flags & __Pyx_CYFUNCTION_STATICMETHOD) {
+        Py_INCREF(func);
+        return func;
+    }
+    if (m->flags & __Pyx_CYFUNCTION_CLASSMETHOD) {
+        if (type == NULL)
+            type = (PyObject *)(Py_TYPE(obj));
+        return __Pyx_PyMethod_New(func, type, (PyObject *)(Py_TYPE(type)));
+    }
+    if (obj == Py_None)
+        obj = NULL;
+    return __Pyx_PyMethod_New(func, obj, type);
+}
+static PyObject*
+__Pyx_CyFunction_repr(__pyx_CyFunctionObject *op)
+{
+#if PY_MAJOR_VERSION >= 3
+    return PyUnicode_FromFormat("<cyfunction %U at %p>",
+                                op->func_qualname, (void *)op);
+#else
+    return PyString_FromFormat("<cyfunction %s at %p>",
+                               PyString_AsString(op->func_qualname), (void *)op);
+#endif
+}
+#if CYTHON_COMPILING_IN_PYPY
+static PyObject * __Pyx_CyFunction_Call(PyObject *func, PyObject *arg, PyObject *kw) {
+    PyCFunctionObject* f = (PyCFunctionObject*)func;
+    PyCFunction meth = PyCFunction_GET_FUNCTION(func);
+    PyObject *self = PyCFunction_GET_SELF(func);
+    Py_ssize_t size;
+    switch (PyCFunction_GET_FLAGS(func) & ~(METH_CLASS | METH_STATIC | METH_COEXIST)) {
+    case METH_VARARGS:
+        if (likely(kw == NULL) || PyDict_Size(kw) == 0)
+            return (*meth)(self, arg);
+        break;
+    case METH_VARARGS | METH_KEYWORDS:
+        return (*(PyCFunctionWithKeywords)meth)(self, arg, kw);
+    case METH_NOARGS:
+        if (likely(kw == NULL) || PyDict_Size(kw) == 0) {
+            size = PyTuple_GET_SIZE(arg);
+            if (size == 0)
+                return (*meth)(self, NULL);
+            PyErr_Format(PyExc_TypeError,
+                "%.200s() takes no arguments (%" CYTHON_FORMAT_SSIZE_T "d given)",
+                f->m_ml->ml_name, size);
+            return NULL;
+        }
+        break;
+    case METH_O:
+        if (likely(kw == NULL) || PyDict_Size(kw) == 0) {
+            size = PyTuple_GET_SIZE(arg);
+            if (size == 1)
+                return (*meth)(self, PyTuple_GET_ITEM(arg, 0));
+            PyErr_Format(PyExc_TypeError,
+                "%.200s() takes exactly one argument (%" CYTHON_FORMAT_SSIZE_T "d given)",
+                f->m_ml->ml_name, size);
+            return NULL;
+        }
+        break;
+    default:
+        PyErr_SetString(PyExc_SystemError, "Bad call flags in "
+                        "__Pyx_CyFunction_Call. METH_OLDARGS is no "
+                        "longer supported!");
+        return NULL;
+    }
+    PyErr_Format(PyExc_TypeError, "%.200s() takes no keyword arguments",
+                 f->m_ml->ml_name);
+    return NULL;
+}
+#else
+static PyObject * __Pyx_CyFunction_Call(PyObject *func, PyObject *arg, PyObject *kw) {
+	return PyCFunction_Call(func, arg, kw);
+}
+#endif
+static PyTypeObject __pyx_CyFunctionType_type = {
+    PyVarObject_HEAD_INIT(0, 0)
+    "cython_function_or_method",
+    sizeof(__pyx_CyFunctionObject),
+    0,
+    (destructor) __Pyx_CyFunction_dealloc,
+    0,
+    0,
+    0,
+#if PY_MAJOR_VERSION < 3
+    0,
+#else
+    0,
+#endif
+    (reprfunc) __Pyx_CyFunction_repr,
+    0,
+    0,
+    0,
+    0,
+    __Pyx_CyFunction_Call,
+    0,
+    0,
+    0,
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC,
+    0,
+    (traverseproc) __Pyx_CyFunction_traverse,
+    (inquiry) __Pyx_CyFunction_clear,
+    0,
+#if PY_VERSION_HEX < 0x030500A0
+    offsetof(__pyx_CyFunctionObject, func_weakreflist),
+#else
+    offsetof(PyCFunctionObject, m_weakreflist),
+#endif
+    0,
+    0,
+    __pyx_CyFunction_methods,
+    __pyx_CyFunction_members,
+    __pyx_CyFunction_getsets,
+    0,
+    0,
+    __Pyx_CyFunction_descr_get,
+    0,
+    offsetof(__pyx_CyFunctionObject, func_dict),
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+#if PY_VERSION_HEX >= 0x030400a1
+    0,
+#endif
+};
+static int __Pyx_CyFunction_init(void) {
+#if !CYTHON_COMPILING_IN_PYPY
+    __pyx_CyFunctionType_type.tp_call = PyCFunction_Call;
+#endif
+    __pyx_CyFunctionType = __Pyx_FetchCommonType(&__pyx_CyFunctionType_type);
+    if (__pyx_CyFunctionType == NULL) {
+        return -1;
+    }
+    return 0;
+}
+static CYTHON_INLINE void *__Pyx_CyFunction_InitDefaults(PyObject *func, size_t size, int pyobjects) {
+    __pyx_CyFunctionObject *m = (__pyx_CyFunctionObject *) func;
+    m->defaults = PyMem_Malloc(size);
+    if (!m->defaults)
+        return PyErr_NoMemory();
+    memset(m->defaults, 0, size);
+    m->defaults_pyobjects = pyobjects;
+    return m->defaults;
+}
+static CYTHON_INLINE void __Pyx_CyFunction_SetDefaultsTuple(PyObject *func, PyObject *tuple) {
+    __pyx_CyFunctionObject *m = (__pyx_CyFunctionObject *) func;
+    m->defaults_tuple = tuple;
+    Py_INCREF(tuple);
+}
+static CYTHON_INLINE void __Pyx_CyFunction_SetDefaultsKwDict(PyObject *func, PyObject *dict) {
+    __pyx_CyFunctionObject *m = (__pyx_CyFunctionObject *) func;
+    m->defaults_kwdict = dict;
+    Py_INCREF(dict);
+}
+static CYTHON_INLINE void __Pyx_CyFunction_SetAnnotationsDict(PyObject *func, PyObject *dict) {
+    __pyx_CyFunctionObject *m = (__pyx_CyFunctionObject *) func;
+    m->func_annotations = dict;
+    Py_INCREF(dict);
+}
+
+static PyObject *__Pyx_Py3MetaclassPrepare(PyObject *metaclass, PyObject *bases, PyObject *name,
+                                           PyObject *qualname, PyObject *mkw, PyObject *modname, PyObject *doc) {
+    PyObject *ns;
+    if (metaclass) {
+        PyObject *prep = __Pyx_PyObject_GetAttrStr(metaclass, __pyx_n_s_prepare);
+        if (prep) {
+            PyObject *pargs = PyTuple_Pack(2, name, bases);
+            if (unlikely(!pargs)) {
+                Py_DECREF(prep);
+                return NULL;
+            }
+            ns = PyObject_Call(prep, pargs, mkw);
+            Py_DECREF(prep);
+            Py_DECREF(pargs);
+        } else {
+            if (unlikely(!PyErr_ExceptionMatches(PyExc_AttributeError)))
+                return NULL;
+            PyErr_Clear();
+            ns = PyDict_New();
+        }
+    } else {
+        ns = PyDict_New();
+    }
+    if (unlikely(!ns))
+        return NULL;
+    if (unlikely(PyObject_SetItem(ns, __pyx_n_s_module, modname) < 0)) goto bad;
+    if (unlikely(PyObject_SetItem(ns, __pyx_n_s_qualname, qualname) < 0)) goto bad;
+    if (unlikely(doc && PyObject_SetItem(ns, __pyx_n_s_doc, doc) < 0)) goto bad;
+    return ns;
+bad:
+    Py_DECREF(ns);
+    return NULL;
+}
+static PyObject *__Pyx_Py3ClassCreate(PyObject *metaclass, PyObject *name, PyObject *bases,
+                                      PyObject *dict, PyObject *mkw,
+                                      int calculate_metaclass, int allow_py2_metaclass) {
+    PyObject *result, *margs;
+    PyObject *owned_metaclass = NULL;
+    if (allow_py2_metaclass) {
+        owned_metaclass = PyObject_GetItem(dict, __pyx_n_s_metaclass);
+        if (owned_metaclass) {
+            metaclass = owned_metaclass;
+        } else if (likely(PyErr_ExceptionMatches(PyExc_KeyError))) {
+            PyErr_Clear();
+        } else {
+            return NULL;
+        }
+    }
+    if (calculate_metaclass && (!metaclass || PyType_Check(metaclass))) {
+        metaclass = __Pyx_CalculateMetaclass((PyTypeObject*) metaclass, bases);
+        Py_XDECREF(owned_metaclass);
+        if (unlikely(!metaclass))
+            return NULL;
+        owned_metaclass = metaclass;
+    }
+    margs = PyTuple_Pack(3, name, bases, dict);
+    if (unlikely(!margs)) {
+        result = NULL;
+    } else {
+        result = PyObject_Call(metaclass, margs, mkw);
+        Py_DECREF(margs);
+    }
+    Py_XDECREF(owned_metaclass);
+    return result;
 }
 
 static int __pyx_bisect_code_objects(__Pyx_CodeObjectCacheEntry* entries, int count, int code_line) {
