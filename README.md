@@ -32,6 +32,14 @@ t.disconnect()
 t.break_event_loop()
 ```
 
+## Installation (Windows) ##
+
+Dependencies: Python 2.7 32 bit
+
+1. From "Releases" download gazesdk-win32.zip
+2. Extract the pyd file 
+3. Copy "TobiiGazeCore32.dll" in the same directory
+
 ## TODO ##
 
 - [ ] Calibration functions
